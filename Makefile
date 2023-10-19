@@ -1,7 +1,7 @@
 .PHONY: build
 build:
-	go build -o bin/ .
-	cp ./.env bin/
+	go build -o bin/ ./cmd/webservice
+	cp ./cmd/webservice/.env bin/
 
 
 .PHONY: postgres

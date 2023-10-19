@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	users "instalike/pkg/users"
@@ -15,13 +16,13 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load("../../.env"); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+
+	loadConfig()
 
 	dbUri := os.Getenv("DB_URI")
 	fmt.Printf("DB_URI=%s", dbUri)
 
+	// Create API server
 	app := fiber.New()
 
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -30,8 +31,12 @@ func main() {
 
 	apiRoute := app.Group("/api")
 
+	// /api/users
+
+	// Service layer
 	service := users.Service{}
 
+	// Endpoint layer
 	users.RegisterRoutes(apiRoute, service)
 
 	// Starting server with graceful shutdown
@@ -53,4 +58,17 @@ func main() {
 
 	log.Println("done")
 
+}
+
+func loadConfig() {
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+
+	envFile := filepath.Join(filepath.Dir(ex), ".env")
+
+	if err := godotenv.Load(envFile); err != nil {
+		panic("Error loading .env file")
+	}
 }
