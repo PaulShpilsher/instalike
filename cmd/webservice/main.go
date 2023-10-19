@@ -34,7 +34,7 @@ func main() {
 	// /api/users
 
 	// Service layer
-	service := users.Service{}
+	service := users.NewService()
 
 	// Endpoint layer
 	users.RegisterRoutes(apiRoute, service)

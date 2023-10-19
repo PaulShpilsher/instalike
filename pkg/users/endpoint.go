@@ -7,9 +7,19 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 )
 
-type user struct {
+type Service interface {
+	Signup(email string, password string) (userId int, token string, err error)
+	Login(email string, password string) (userId int, token string, err error)
+}
+
+type userRequest struct {
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required"`
+}
+
+type userResponse struct {
+	UserId int    `json:"userId"`
+	Token  string `json:"token"`
 }
 
 func RegisterRoutes(router fiber.Router, s Service) {
@@ -22,15 +32,25 @@ func RegisterRoutes(router fiber.Router, s Service) {
 
 		// handler
 		func(c *fiber.Ctx) error {
-			dto := user{}
-			if err := c.BodyParser(&dto); err != nil {
+			user := userRequest{}
+			if err := c.BodyParser(&user); err != nil {
 				return &fiber.Error{
 					Code:    fiber.ErrBadRequest.Code,
 					Message: err.Error(),
 				}
 			}
-			log.Info(fmt.Sprintf("User signup.  Email: %s, Password %s", dto.Email, dto.Password))
-			return c.JSON(dto)
+
+			userId, token, err := s.Signup(user.Email, user.Password)
+			if err != nil {
+				log.Error(err.Error())
+				return err
+			}
+
+			log.Info(fmt.Sprintf("user signed up. id(%d), token(%s)", userId, token))
+			return c.JSON(&userResponse{
+				UserId: userId,
+				Token:  token,
+			})
 		})
 
 	usersRouter.Post("/login", func(c *fiber.Ctx) error {
