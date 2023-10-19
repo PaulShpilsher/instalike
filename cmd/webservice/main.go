@@ -40,12 +40,11 @@ func main() {
 	users.RegisterRoutes(apiRoute, service)
 
 	// Starting server with graceful shutdown
-
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	go func() {
-		if err := app.Listen(os.Getenv("HOST")); err != nil {
+		if err := app.Listen(os.Getenv("SERVER_URL")); err != nil {
 			log.Fatalf("listen returned err: %v", err)
 		}
 	}()
@@ -61,6 +60,7 @@ func main() {
 }
 
 func loadConfig() {
+
 	ex, err := os.Executable()
 	if err != nil {
 		panic(err)
