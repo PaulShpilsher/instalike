@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"syscall"
 
-	users "instalike/pkg/users"
+	users "github.com/PaulShpilsher/instalike/pkg/users"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
