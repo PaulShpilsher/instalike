@@ -41,3 +41,8 @@ func AuthenticateUser(c *fiber.Ctx) error {
 	c.Next()
 	return nil
 }
+
+func GetAuthenicatedUserId(c *fiber.Ctx) int {
+	userId := c.Locals("userId").(int)
+	return userId
+}
