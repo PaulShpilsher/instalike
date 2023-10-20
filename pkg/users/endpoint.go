@@ -43,8 +43,7 @@ func MakeUserRegisterHandler(s Service) fiber.Handler {
 		userId, err := s.Register(payload.Email, payload.Password)
 		if err != nil {
 			log.Error(err)
-			// TODO: refactor to define specific business logic error for this.  For now use pgx error information
-			if strings.Contains(err.Error(), "duplicate key value violates unique") {
+			if strings.Contains(err.Error(), "user already exists") {
 				return c.Status(fiber.StatusConflict).JSON(utils.NewErrorOutput("User with that email already exists"))
 			} else {
 				return c.Status(fiber.StatusInternalServerError).JSON(utils.NewErrorOutput("Server error"))
