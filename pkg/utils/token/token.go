@@ -12,15 +12,15 @@ import (
 )
 
 var (
-	tokenExpireDuration time.Duration = time.Hour * time.Duration(24) // default is 1 hour
-	privateKey          *rsa.PrivateKey
-	publicKey           *rsa.PublicKey
+	tokenTtl   time.Duration = time.Minute * time.Duration(60) // default is 1 hour
+	privateKey *rsa.PrivateKey
+	publicKey  *rsa.PublicKey
 )
 
 func init() {
-	if value, ok := os.LookupEnv("JWT_EXPIRATION_HOURS"); ok {
-		if hours, err := strconv.Atoi(value); err == nil {
-			tokenExpireDuration = time.Duration(hours) * time.Hour
+	if value, ok := os.LookupEnv("TOKEN_EXPIRATION_MINUTES"); ok {
+		if minutes, err := strconv.Atoi(value); err == nil {
+			tokenTtl = time.Duration(minutes) * time.Minute
 		}
 	}
 
@@ -54,7 +54,7 @@ func CreateJwtToken(userId int) (string, error) {
 		ID:        strconv.Itoa(userId),
 		IssuedAt:  jwtTime(time.Now()),
 		NotBefore: jwtTime(time.Now()),
-		ExpiresAt: jwtTime(time.Now().Add(tokenExpireDuration)),
+		ExpiresAt: jwtTime(time.Now().Add(tokenTtl)),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
@@ -68,10 +68,6 @@ func CreateJwtToken(userId int) (string, error) {
 }
 
 func ValidateJwtToken(token string) (jwt.MapClaims, error) {
-	// key, err := jwt.ParseRSAPublicKeyFromPEM(j.publicKey)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("validate: parse key: %w", err)
-	// }
 
 	tok, err := jwt.Parse(token, func(jwtToken *jwt.Token) (interface{}, error) {
 		if _, ok := jwtToken.Method.(*jwt.SigningMethodRSA); !ok {
