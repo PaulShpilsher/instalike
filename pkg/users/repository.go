@@ -46,3 +46,13 @@ func (r *userRepository) GetUserByEmail(email string) (User, error) {
 
 	return user, nil
 }
+
+func (r *userRepository) GetUserExistsByEmail(email string) (bool, error) {
+	var exists bool
+	if err := r.DB.Get(&exists, "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1) AS exists", email); err != nil {
+		log.Printf("[DB ERROR]: %v", err)
+		return false, err
+	}
+
+	return exists, nil
+}

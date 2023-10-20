@@ -1,6 +1,7 @@
 package users
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/PaulShpilsher/instalike/pkg/utils/token"
@@ -11,6 +12,7 @@ type UserRepository interface {
 	CreateUser(email string, passwordHash string) (int, error)
 	GetUserById(id int) (User, error)
 	GetUserByEmail(email string) (User, error)
+	GetUserExistsByEmail(email string) (bool, error)
 }
 
 type service struct {
@@ -24,6 +26,14 @@ func NewService(repo UserRepository) *service {
 }
 
 func (s *service) Register(email string, password string) (int, error) {
+
+	userExists, err := s.repo.GetUserExistsByEmail(email)
+	if err != nil {
+		return math.MinInt, err
+	}
+	if userExists {
+		return math.MinInt, fmt.Errorf("user already exists")
+	}
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
