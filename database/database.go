@@ -1,4 +1,4 @@
-package postgres
+package database
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func PostgreSQLConnection() (*sqlx.DB, error) {
+func NewSqlConnection() (*sqlx.DB, error) {
 
 	// Define database connection for PostgreSQL.
 	url := os.Getenv("DB_URL")

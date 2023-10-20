@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/PaulShpilsher/instalike/database/postgres"
+	"github.com/PaulShpilsher/instalike/database"
 	users "github.com/PaulShpilsher/instalike/pkg/users"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,7 +19,7 @@ func main() {
 
 	loadConfig()
 
-	db, _ := postgres.PostgreSQLConnection()
+	db, _ := database.NewSqlConnection()
 
 	// Create API server
 	app := fiber.New()
