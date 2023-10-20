@@ -1,7 +1,7 @@
 package users
 
 import (
-	"fmt"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -14,6 +14,7 @@ import (
 type Service interface {
 	Register(email string, password string) (userId int, err error)
 	Login(email string, password string) (userId int, err error)
+	GetUserById(id int) (user User, err error)
 }
 
 type registerInput struct {
@@ -35,6 +36,11 @@ type loginOutput struct {
 	Token  string `json:"token"`
 }
 
+type errorOutput struct {
+	message string
+	errors  interface{}
+}
+
 func RegisterRoutes(router fiber.Router, s Service) {
 
 	// API handlers
@@ -44,17 +50,22 @@ func RegisterRoutes(router fiber.Router, s Service) {
 
 		var payload registerInput
 		if err := c.BodyParser(&payload); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
+			return c.Status(fiber.StatusBadRequest).JSON(errorOutput{message: err.Error()})
 		}
 
 		if errors := utils.ValidateStruct(payload); errors != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"errors": errors})
+			return c.Status(fiber.StatusBadRequest).JSON(errorOutput{errors: errors})
 		}
 
 		userId, err := s.Register(payload.Email, payload.Password)
 		if err != nil {
 			log.Error(err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
+			// TODO: refactor to define specific business logic error for this.  For now use pgx error information
+			if strings.Contains(err.Error(), "duplicate key value violates unique") {
+				return c.Status(fiber.StatusConflict).JSON(errorOutput{message: "User with that email already exists"})
+			} else {
+				return c.Status(fiber.StatusInternalServerError).JSON(errorOutput{message: "Server error"})
+			}
 		}
 
 		log.Debugf("user %s registered. id: %d", payload.Email, userId)
@@ -67,7 +78,7 @@ func RegisterRoutes(router fiber.Router, s Service) {
 	login := func(c *fiber.Ctx) error {
 		var payload loginInput
 		if err := c.BodyParser(&payload); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
+			return c.Status(fiber.StatusBadRequest).JSON(errorOutput{message: err.Error()})
 		}
 
 		userId, err := s.Login(payload.Email, payload.Password)
@@ -79,13 +90,32 @@ func RegisterRoutes(router fiber.Router, s Service) {
 		// Greate JWT
 		token, err := token.CreateJwtToken(userId)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
+			log.Error(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(errorOutput{message: err.Error()})
 		}
 
 		log.Debugf("user %s logged in. id: %d", payload.Email, userId)
 		return c.JSON(&loginOutput{
 			UserId: userId,
 			Token:  token,
+		})
+	}
+
+	// me - get logged in user
+	me := func(c *fiber.Ctx) error {
+
+		userId := middlewares.GetAuthenicatedUserId(c)
+		user, err := s.GetUserById(userId)
+		if err != nil {
+			log.Error(err)
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+
+		return c.JSON(fiber.Map{
+			"id":      user.Id,
+			"email":   user.Email,
+			"created": user.CreatedAt,
+			"updated": user.UpdatedAt,
 		})
 	}
 
@@ -102,8 +132,5 @@ func RegisterRoutes(router fiber.Router, s Service) {
 	// TEST
 	// Gets logged in user information
 	// GET: /users/me
-	usersRouter.Get("/me", middlewares.AuthenticateUser, func(c *fiber.Ctx) error {
-		userId := middlewares.GetAuthenicatedUserId(c)
-		return c.SendString(fmt.Sprintf("userId: %d", userId))
-	})
+	usersRouter.Get("/me", middlewares.AuthenticateUser, me)
 }

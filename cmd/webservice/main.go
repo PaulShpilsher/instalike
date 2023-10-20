@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
 
+	"github.com/PaulShpilsher/instalike/database/postgres"
 	users "github.com/PaulShpilsher/instalike/pkg/users"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,8 +19,7 @@ func main() {
 
 	loadConfig()
 
-	dbUri := os.Getenv("DB_URI")
-	fmt.Printf("DB_URI=%s", dbUri)
+	db, _ := postgres.PostgreSQLConnection()
 
 	// Create API server
 	app := fiber.New()
@@ -34,7 +33,10 @@ func main() {
 	// /api/users
 
 	// Service layer
-	service := users.NewService()
+
+	repository := users.NewRepository(db)
+
+	service := users.NewService(repository)
 
 	// Endpoint layer
 	users.RegisterRoutes(apiRoute, service)
@@ -54,6 +56,8 @@ func main() {
 	if err := app.ShutdownWithContext(context.TODO()); err != nil {
 		log.Printf("shutdown returned an err: %v\n", err)
 	}
+
+	db.Close()
 
 	log.Println("done")
 
