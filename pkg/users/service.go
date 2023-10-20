@@ -2,7 +2,6 @@ package users
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/PaulShpilsher/instalike/pkg/utils/token"
 	"golang.org/x/crypto/bcrypt"
@@ -42,11 +41,7 @@ func (s *service) Register(email string, password string) (int, error) {
 
 	userId, err := s.repo.CreateUser(email, string(passwordHash))
 	if err != nil {
-		if strings.Contains(err.Error(), "duplicate key value violates unique") {
-			return 0, fmt.Errorf("user already exists")
-		} else {
-			return 0, err
-		}
+		return 0, err
 	}
 
 	return userId, nil

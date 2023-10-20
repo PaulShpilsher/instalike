@@ -1,7 +1,9 @@
 package users
 
 import (
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -20,7 +22,11 @@ func (r *userRepository) CreateUser(email string, passwordHash string) (int, err
 	var id int
 	if err := r.DB.Get(&id, "INSERT INTO users (email, password_hash) VALUES($1, $2) RETURNING id", email, passwordHash); err != nil {
 		log.Printf("[DB ERROR]: %v", err)
-		return 0, err
+		if strings.Contains(err.Error(), "duplicate key value violates unique") {
+			return 0, fmt.Errorf("user already exists")
+		} else {
+			return 0, err
+		}
 	}
 
 	return id, nil
