@@ -12,11 +12,14 @@ import (
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
+// Service layer interface
 type Service interface {
 	Register(email string, password string) (userId int, err error)
 	Login(email string, password string) (userId int, token string, err error)
 	GetUserById(id int) (user User, err error)
 }
+
+// signu DTOs
 
 type registerInput struct {
 	Email    string `json:"email" validate:"required"`
@@ -57,6 +60,7 @@ func MakeUserRegisterHandler(s Service) fiber.Handler {
 	}
 }
 
+// login DTOs
 type loginInput struct {
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required"`
@@ -95,6 +99,7 @@ func MakeUserLoginHandler(s Service) fiber.Handler {
 	}
 }
 
+// user information DTO
 type loggedInUserOutput struct {
 	UserId  int       `json:"userId"`
 	Email   string    `json:"email"`
