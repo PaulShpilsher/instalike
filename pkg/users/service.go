@@ -2,7 +2,6 @@ package users
 
 import (
 	"fmt"
-	"math"
 	"strings"
 
 	"github.com/PaulShpilsher/instalike/pkg/utils/token"
@@ -57,16 +56,16 @@ func (s *service) Login(email string, password string) (int, string, error) {
 
 	user, err := s.repo.GetUserByEmail(email)
 	if err != nil {
-		return math.MinInt, "", err
+		return 0, "", err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		return math.MinInt, "", err
+		return 0, "", err
 	}
 
 	jwtToken, err := token.CreateJwtToken(user.Id)
 	if err != nil {
-		return math.MinInt, "", err
+		return 0, "", err
 	}
 
 	return user.Id, jwtToken, nil

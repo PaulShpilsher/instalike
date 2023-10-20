@@ -2,7 +2,6 @@ package users
 
 import (
 	"log"
-	"math"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -21,7 +20,7 @@ func (r *userRepository) CreateUser(email string, passwordHash string) (int, err
 	var id int
 	if err := r.DB.Get(&id, "INSERT INTO users (email, password_hash) VALUES($1, $2) RETURNING id", email, passwordHash); err != nil {
 		log.Printf("[DB ERROR]: %v", err)
-		return math.MinInt, err
+		return 0, err
 	}
 
 	return id, nil
