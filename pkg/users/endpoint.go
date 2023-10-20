@@ -3,6 +3,7 @@ package users
 import (
 	"encoding/json"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -27,22 +28,9 @@ type registerOutput struct {
 	UserId int `json:"userId"`
 }
 
-type loginInput struct {
-	Email    string `json:"email" validate:"required"`
-	Password string `json:"password" validate:"required"`
-}
-
-type loginOutput struct {
-	UserId int    `json:"userId"`
-	Token  string `json:"token"`
-}
-
-func RegisterRoutes(router fiber.Router, s Service) {
-
-	// API handlers
-
-	// register - registers new user
-	register := func(c *fiber.Ctx) error {
+// MakeUserRegisterHandler - register handler factory
+func MakeUserRegisterHandler(s Service) fiber.Handler {
+	return func(c *fiber.Ctx) error {
 
 		var payload registerInput
 		if err := c.BodyParser(&payload); err != nil {
@@ -69,9 +57,21 @@ func RegisterRoutes(router fiber.Router, s Service) {
 			UserId: userId,
 		})
 	}
+}
 
-	// login - user login
-	login := func(c *fiber.Ctx) error {
+type loginInput struct {
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+type loginOutput struct {
+	UserId int    `json:"userId"`
+	Token  string `json:"token"`
+}
+
+// MakeUserLoginHandler - login handler factory
+func MakeUserLoginHandler(s Service) fiber.Handler {
+	return func(c *fiber.Ctx) error {
 		var payload loginInput
 		if err := c.BodyParser(&payload); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
@@ -102,10 +102,18 @@ func RegisterRoutes(router fiber.Router, s Service) {
 			Token:  token,
 		})
 	}
+}
 
-	// me - get logged in user information
-	// IMPORTANT: this is a test function, remove it before production
-	me := func(c *fiber.Ctx) error {
+type loggedInUserOutput struct {
+	UserId  int       `json:"userId"`
+	Email   string    `json:"email"`
+	Created time.Time `json:"created"`
+	Updated time.Time `json:"updated"`
+}
+
+// MakeGetLoggedInUserHandler - get logged in user information
+func MakeGetLoggedInUserHandler(s Service) fiber.Handler {
+	return func(c *fiber.Ctx) error {
 
 		userId := middlewares.GetAuthenicatedUserId(c)
 		user, err := s.GetUserById(userId)
@@ -114,25 +122,11 @@ func RegisterRoutes(router fiber.Router, s Service) {
 			return c.SendStatus(fiber.StatusNotFound)
 		}
 
-		return c.JSON(fiber.Map{
-			"email":   user.Email,
-			"created": user.CreatedAt,
-			"updated": user.UpdatedAt,
+		return c.JSON(&loggedInUserOutput{
+			UserId:  user.Id,
+			Email:   user.Email,
+			Created: user.Created,
+			Updated: user.Updated,
 		})
 	}
-
-	// regiser handlers
-
-	usersRouter := router.Group("/users")
-
-	// POST: /users/register
-	usersRouter.Post("/register", register)
-
-	// POST: /users/login
-	usersRouter.Post("/login", login)
-
-	// TEST
-	// Gets logged in user information
-	// GET: /users/me
-	usersRouter.Get("/me", middlewares.AuthenticateUser, me)
 }
