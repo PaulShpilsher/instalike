@@ -5,6 +5,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+
+	"github.com/PaulShpilsher/instalike/pkg/token"
 )
 
 type Service interface {
@@ -58,7 +60,10 @@ func RegisterRoutes(router fiber.Router, s Service) {
 		}
 
 		// TODO: Greate JWT
-		token := "authToken"
+		token, err := token.CreateJwtToken(userId)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
 
 		log.Info(fmt.Sprintf("user logged in. id(%d), token(%s)", userId, token))
 		return c.JSON(&userResponse{
