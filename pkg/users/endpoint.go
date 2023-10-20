@@ -5,77 +5,105 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+
+	"github.com/PaulShpilsher/instalike/pkg/middlewares"
+	"github.com/PaulShpilsher/instalike/pkg/utils"
+	"github.com/PaulShpilsher/instalike/pkg/utils/token"
 )
 
 type Service interface {
-	Signup(email string, password string) (userId int, err error)
+	Register(email string, password string) (userId int, err error)
 	Login(email string, password string) (userId int, err error)
 }
 
-type userRequest struct {
+type registerInput struct {
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required,min=5"`
+}
+
+type registerOutput struct {
+	UserId int `json:"userId"`
+}
+
+type loginInput struct {
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
 
-type userResponse struct {
+type loginOutput struct {
 	UserId int    `json:"userId"`
 	Token  string `json:"token"`
 }
 
 func RegisterRoutes(router fiber.Router, s Service) {
 
-	usersRouter := router.Group("/users")
+	// API handlers
 
-	// POST: /users/register
-	usersRouter.Post("/register", func(c *fiber.Ctx) error {
-		user, err := parseUserRequest(c)
-		if err != nil {
-			log.Error(err.Error())
-			return err
+	// register - registers new user
+	register := func(c *fiber.Ctx) error {
+
+		var payload registerInput
+		if err := c.BodyParser(&payload); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
 		}
 
-		userId, err := s.Login(user.Email, user.Password)
-		if err != nil {
-			log.Error(err.Error())
-			return err
+		if errors := utils.ValidateStruct(payload); errors != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"errors": errors})
 		}
 
-		log.Info(fmt.Sprintf("user signed up. id(%d)", userId))
-		return c.SendStatus(fiber.StatusCreated)
-	})
-
-	// POST: /users/login
-	usersRouter.Post("/login", func(c *fiber.Ctx) error {
-		user, err := parseUserRequest(c)
+		userId, err := s.Register(payload.Email, payload.Password)
 		if err != nil {
-			return err
+			log.Error(err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
 		}
 
-		userId, err := s.Login(user.Email, user.Password)
+		log.Debugf("user %s registered. id: %d", payload.Email, userId)
+		return c.Status(fiber.StatusCreated).JSON(registerOutput{
+			UserId: userId,
+		})
+	}
+
+	// login - user login
+	login := func(c *fiber.Ctx) error {
+		var payload loginInput
+		if err := c.BodyParser(&payload); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
+		}
+
+		userId, err := s.Login(payload.Email, payload.Password)
 		if err != nil {
-			log.Error(err.Error())
+			log.Error(err)
 			return c.SendStatus(fiber.StatusUnauthorized)
 		}
 
-		// TODO: Greate JWT
-		token := "authToken"
+		// Greate JWT
+		token, err := token.CreateJwtToken(userId)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
+		}
 
-		log.Info(fmt.Sprintf("user logged in. id(%d), token(%s)", userId, token))
-		return c.JSON(&userResponse{
+		log.Debugf("user %s logged in. id: %d", payload.Email, userId)
+		return c.JSON(&loginOutput{
 			UserId: userId,
 			Token:  token,
 		})
-	})
-}
-
-func parseUserRequest(c *fiber.Ctx) (*userRequest, error) {
-	user := userRequest{}
-	if err := c.BodyParser(&user); err != nil {
-		log.Error(err)
-		return nil, &fiber.Error{
-			Code:    fiber.ErrBadRequest.Code,
-			Message: err.Error(),
-		}
 	}
-	return &user, nil
+
+	// regiser handlers
+
+	usersRouter := router.Group("/users")
+
+	// POST: /users/register
+	usersRouter.Post("/register", register)
+
+	// POST: /users/login
+	usersRouter.Post("/login", login)
+
+	// TEST
+	// Gets logged in user information
+	// GET: /users/me
+	usersRouter.Get("/me", middlewares.AuthenticateUser, func(c *fiber.Ctx) error {
+		userId := middlewares.GetAuthenicatedUserId(c)
+		return c.SendString(fmt.Sprintf("userId: %d", userId))
+	})
 }
