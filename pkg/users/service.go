@@ -3,6 +3,7 @@ package users
 import (
 	"math"
 
+	"github.com/PaulShpilsher/instalike/pkg/utils/token"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -37,18 +38,23 @@ func (s *service) Register(email string, password string) (int, error) {
 	return userId, nil
 }
 
-func (s *service) Login(email string, password string) (int, error) {
+func (s *service) Login(email string, password string) (int, string, error) {
 
 	user, err := s.repo.GetUserByEmail(email)
 	if err != nil {
-		return math.MinInt, err
+		return math.MinInt, "", err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		return math.MinInt, err
+		return math.MinInt, "", err
 	}
 
-	return user.Id, nil
+	jwtToken, err := token.CreateJwtToken(user.Id)
+	if err != nil {
+		return math.MinInt, "", err
+	}
+
+	return user.Id, jwtToken, nil
 }
 
 func (s *service) GetUserById(id int) (User, error) {

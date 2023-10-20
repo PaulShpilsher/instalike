@@ -10,12 +10,11 @@ import (
 
 	"github.com/PaulShpilsher/instalike/pkg/middlewares"
 	"github.com/PaulShpilsher/instalike/pkg/utils"
-	"github.com/PaulShpilsher/instalike/pkg/utils/token"
 )
 
 type Service interface {
 	Register(email string, password string) (userId int, err error)
-	Login(email string, password string) (userId int, err error)
+	Login(email string, password string) (userId int, token string, err error)
 	GetUserById(id int) (user User, err error)
 }
 
@@ -83,17 +82,10 @@ func MakeUserLoginHandler(s Service) fiber.Handler {
 			return c.SendStatus(fiber.StatusUnauthorized) // do not give to the client hints what is wrong with login data
 		}
 
-		userId, err := s.Login(payload.Email, payload.Password)
+		userId, token, err := s.Login(payload.Email, payload.Password)
 		if err != nil {
 			log.Error(err)
 			return c.SendStatus(fiber.StatusUnauthorized)
-		}
-
-		// Greate JWT
-		token, err := token.CreateJwtToken(userId)
-		if err != nil {
-			log.Error(err)
-			return c.Status(fiber.StatusInternalServerError).JSON(utils.NewErrorOutput(err.Error()))
 		}
 
 		log.Debugf("user %s logged in. id: %d", payload.Email, userId)
@@ -116,6 +108,7 @@ func MakeGetLoggedInUserHandler(s Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		userId := middlewares.GetAuthenicatedUserId(c)
+
 		user, err := s.GetUserById(userId)
 		if err != nil {
 			log.Error(err)
