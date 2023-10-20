@@ -1,42 +1,62 @@
 package users
 
 import (
-	"log"
 	"math"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-type service struct {
-	// repo ArticlesRepository
-	dummy string
+type UserRepository interface {
+	CreateUser(email string, passwordHash string) (int, error)
+	GetUserById(id int) (User, error)
+	GetUserByEmail(email string) (User, error)
 }
 
-func NewService() *service {
+type service struct {
+	repo UserRepository
+}
+
+func NewService(repo UserRepository) *service {
 	return &service{
-		dummy: "dummy",
+		repo: repo,
 	}
 }
 
 func (s *service) Register(email string, password string) (int, error) {
-	log.Println("Service.Signup", email, password)
-	_, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return math.MinInt, err
 	}
 
-	return 1, nil
+	userId, err := s.repo.CreateUser(email, string(passwordHash))
+	if err != nil {
+		return math.MinInt, err
+	}
+
+	return userId, nil
 }
 
-func (s *service) Login(email string, password string) (userId int, err error) {
-	log.Println("Service.Login", email, password)
+func (s *service) Login(email string, password string) (int, error) {
 
-	// passwordHash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	// if err := bcrypt.CompareHashAndPassword([]byte(password), []byte(passwordHash)); err != nil {
-	// 	if err != nil {
-	// 		return math.MinInt, err
-	// 	}
-	// }
+	user, err := s.repo.GetUserByEmail(email)
+	if err != nil {
+		return math.MinInt, err
+	}
 
-	return 1, nil
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+		return math.MinInt, err
+	}
+
+	return user.Id, nil
+}
+
+func (s *service) GetUserById(id int) (User, error) {
+
+	user, err := s.repo.GetUserById(id)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
 }
