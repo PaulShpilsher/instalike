@@ -131,5 +131,17 @@ func (r *repository) UpdatePost(postId int, contents string) error {
 }
 
 func (r *repository) AttachFileToPost(postId int, contentType string, binary []byte) error {
+
+	sql := `
+		INSERT INTO post_attachments (post_id, content_type, attachment_size, attachment_data) 
+		VALUES($1, $2, $3, $4)
+		RETURNING id;
+	`
+	var attachmentId int64
+	if err := r.DB.Get(&attachmentId, sql, postId, contentType, len(binary), binary); err != nil {
+		log.Printf("[DB ERROR]: %v", err)
+		return err
+	}
+
 	return nil
 }
