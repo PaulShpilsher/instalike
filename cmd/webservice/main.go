@@ -5,21 +5,20 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 
 	"github.com/PaulShpilsher/instalike/database"
+	"github.com/PaulShpilsher/instalike/pkg/config"
 	users "github.com/PaulShpilsher/instalike/pkg/users"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 )
 
 func main() {
 
-	loadConfig()
+	config := config.NewConfig()
 
-	db, _ := database.NewSqlConnection()
+	db, _ := database.NewDbConnection(&config.Database)
 
 	// Create API server
 	app := fiber.New()
@@ -61,18 +60,4 @@ func main() {
 
 	log.Println("done")
 
-}
-
-func loadConfig() {
-
-	ex, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
-
-	envFile := filepath.Join(filepath.Dir(ex), ".env")
-
-	if err := godotenv.Load(envFile); err != nil {
-		panic("Error loading .env file")
-	}
 }
