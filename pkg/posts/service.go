@@ -19,3 +19,8 @@ func (s *service) GetPosts() ([]Post, error) {
 	posts, err := s.repo.GetPosts()
 	return posts, err
 }
+
+func (s *service) GetPostById(postId int) (Post, error) {
+	post, err := s.repo.GetPostById(postId)
+	return post, err
+}

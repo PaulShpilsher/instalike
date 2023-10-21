@@ -16,7 +16,7 @@ func RegisterRoutes(api fiber.Router, authMiddleware fiber.Handler, s PostsServi
 	posts.Get("/", MakeGetPostsHandler(s))
 
 	// get a specific post by ID (GET /api/posts/{postID}).
-	posts.Get("/:postId", notImplemented)
+	posts.Get("/:postId", MakeGetPostByIdHandler(s))
 
 	// Update an existing post (PUT /api/posts/{postID}).
 	posts.Put("/:postId", notImplemented)

@@ -40,7 +40,7 @@ func MakeUserRegisterHandler(s UserService) fiber.Handler {
 			if strings.Contains(err.Error(), "user already exists") {
 				return c.Status(fiber.StatusConflict).JSON(utils.NewErrorOutput("user already exists"))
 			} else {
-				return c.Status(fiber.StatusInternalServerError).JSON(utils.NewErrorOutput("Server error"))
+				return c.SendStatus(fiber.StatusInternalServerError)
 			}
 		}
 

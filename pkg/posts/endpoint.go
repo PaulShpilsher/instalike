@@ -2,6 +2,7 @@ package posts
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
@@ -36,7 +37,7 @@ func MakeCreatePostHandler(s PostsService) fiber.Handler {
 		post, err := s.CreatePost(userId, payload.Contents)
 		if err != nil {
 			log.Error(err)
-			return c.Status(fiber.StatusInternalServerError).JSON(utils.NewErrorOutput("Server error"))
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		log.Debugf("post created:  %v", post)
@@ -68,17 +69,40 @@ func makePostOutput(post Post) postOutput {
 	}
 }
 
-// MakeGetPostsHandler - create post handler factory
+// MakeGetPostsHandler - get posts handler factory
 func MakeGetPostsHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		posts, err := s.GetPosts()
 		if err != nil {
 			log.Error(err)
-			return c.Status(fiber.StatusInternalServerError).JSON(utils.NewErrorOutput("Server error"))
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		log.Debugf("got %d posts", len(posts))
 		return c.JSON(utils.Map(posts, makePostOutput))
+	}
+}
+
+// MakeGetPostByIdHandler - get post by id handler factory
+func MakeGetPostByIdHandler(s PostsService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		postId, err := getPostId(c)
+		if err != nil {
+			return c.SendStatus(fiber.StatusBadRequest)
+		}
+
+		post, err := s.GetPostById(postId)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				return c.SendStatus(fiber.StatusInternalServerError)
+			}
+
+			log.Error(err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
+		return c.JSON(makePostOutput(post))
 	}
 }
 
