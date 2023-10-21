@@ -2,7 +2,7 @@ package users
 
 import (
 	"encoding/json"
-	"strings"
+	"errors"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,13 +11,6 @@ import (
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
-
-// UserService layer interface
-type UserService interface {
-	Register(email string, password string) (userId int, err error)
-	Login(email string, password string) (userId int, token string, err error)
-	GetUserById(id int) (user User, err error)
-}
 
 ///
 /// Sign up
@@ -44,10 +37,10 @@ func MakeUserRegisterHandler(s UserService) fiber.Handler {
 		userId, err := s.Register(payload.Email, payload.Password)
 		if err != nil {
 			log.Error(err)
-			if strings.Contains(err.Error(), "user already exists") {
-				return c.Status(fiber.StatusConflict).JSON(utils.NewErrorOutput("user already exists"))
+			if errors.Is(err, utils.ErrAlreadyExists) {
+				return c.SendStatus(fiber.StatusConflict)
 			} else {
-				return c.Status(fiber.StatusInternalServerError).JSON(utils.NewErrorOutput("Server error"))
+				return c.SendStatus(fiber.StatusInternalServerError)
 			}
 		}
 
