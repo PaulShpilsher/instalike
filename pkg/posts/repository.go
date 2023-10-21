@@ -116,7 +116,8 @@ func (r *repository) DeletePost(postId int) error {
 func (r *repository) UpdatePost(postId int, contents string) error {
 	sql := `
 		UPDATE	posts 
-		SET		contents = $2
+		SET		contents = $2,
+				updated_at = CURRENT_TIMESTAMP
 		WHERE	id = $1 AND deleted IS FALSE
 	`
 	if result, err := r.DB.Exec(sql, postId, contents); err != nil {
