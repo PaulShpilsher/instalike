@@ -26,7 +26,7 @@ func MakeCreatePostHandler(s PostsService) fiber.Handler {
 
 		var payload createPostInput
 		if err := c.BodyParser(&payload); err != nil {
-			return sendBadRequest(c, err.Error())
+			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
 		}
 
 		if errors := utils.ValidateStruct(payload); errors != nil {
@@ -158,11 +158,11 @@ func MakeUpdatePostHandler(s PostsService) fiber.Handler {
 
 		var payload updatePostInput
 		if err := c.BodyParser(&payload); err != nil {
-			return sendBadRequest(c, err.Error())
+			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
 		}
 
 		if errors := utils.ValidateStruct(payload); errors != nil {
-			return sendBadRequest(c, err.Error())
+			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
 		}
 
 		err = s.UpdatePost(middleware.GetAuthenicatedUserId(c), postId, payload.Contents)
@@ -200,25 +200,27 @@ func MakeUploadMediaFileToPostHandler(s PostsService) fiber.Handler {
 
 		file, err := c.FormFile("file")
 		if err != nil {
-			return sendBadRequest(c, err.Error())
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
 
 		if file.Size > MaxUploadSize {
-			return sendBadRequest(c, "file is too big")
+			return c.SendStatus(fiber.StatusRequestEntityTooLarge)
+		} else if file.Size == 0 {
+			return c.SendStatus(fiber.StatusUnprocessableEntity)
 		}
 
 		contentType := file.Header["Content-Type"][0]
 
 		if matched, err := regexp.MatchString("^(:?image|video)/\\w{2,}$", contentType); err != nil {
-			return sendBadRequest(c, err.Error())
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		} else if !matched {
-			return sendBadRequest(c, ("Only images and videos are allowed"))
+			return c.Status(fiber.StatusBadRequest).SendString("Only images and videos are allowed")
 		}
 
 		// get buffer from file
 		buffer, err := file.Open()
 		if err != nil {
-			return sendBadRequest(c, err.Error())
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
 
 		defer buffer.Close()
@@ -226,7 +228,7 @@ func MakeUploadMediaFileToPostHandler(s PostsService) fiber.Handler {
 		userId := 9 // middleware.GetAuthenicatedUserId(c)
 		err = s.AttachFileToPost(userId, postId, contentType, int(file.Size), buffer)
 		if err != nil {
-			return sendBadRequest(c, err.Error())
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
 
 		return c.SendStatus(fiber.StatusNoContent)
@@ -241,8 +243,4 @@ func getPostId(c *fiber.Ctx) (int, error) {
 		return 0, err
 	}
 	return value, nil
-}
-
-func sendBadRequest(c *fiber.Ctx, message string) error {
-	return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(message))
 }
