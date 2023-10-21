@@ -28,6 +28,11 @@ func NewJwtService(config *config.JwtConfig) *service {
 type JwtService interface {
 	CreateToken(content string) (string, error)
 	ValidateToken(token string) (string, error)
+	TTL() time.Duration
+}
+
+func (s *service) TTL() time.Duration {
+	return s.Ttl
 }
 
 func (s *service) CreateToken(content string) (string, error) {
