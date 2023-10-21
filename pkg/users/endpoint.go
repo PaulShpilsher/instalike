@@ -19,15 +19,13 @@ type Service interface {
 	GetUserById(id int) (user User, err error)
 }
 
-// signu DTOs
+///
+/// Sign up
+///
 
 type registerInput struct {
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required,min=5"`
-}
-
-type registerOutput struct {
-	UserId int `json:"userId"`
 }
 
 // MakeUserRegisterHandler - register handler factory
@@ -54,13 +52,14 @@ func MakeUserRegisterHandler(s Service) fiber.Handler {
 		}
 
 		log.Debugf("user %s registered. id: %d", payload.Email, userId)
-		return c.Status(fiber.StatusCreated).JSON(registerOutput{
-			UserId: userId,
-		})
+		return c.SendStatus(fiber.StatusCreated)
 	}
 }
 
-// login DTOs
+///
+/// Login
+///
+
 type loginInput struct {
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required"`
@@ -99,16 +98,19 @@ func MakeUserLoginHandler(s Service) fiber.Handler {
 	}
 }
 
-// user information DTO
-type loggedInUserOutput struct {
+///
+/// Current user information
+///
+
+type currentUserOutput struct {
 	UserId  int       `json:"userId"`
 	Email   string    `json:"email"`
 	Created time.Time `json:"created"`
 	Updated time.Time `json:"updated"`
 }
 
-// MakeGetLoggedInUserHandler - get logged in user information
-func MakeGetLoggedInUserHandler(s Service) fiber.Handler {
+// MakeGetCurrentUserHandler - get logged in user information
+func MakeGetCurrentUserHandler(s Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		userId := middleware.GetAuthenicatedUserId(c)
@@ -119,7 +121,7 @@ func MakeGetLoggedInUserHandler(s Service) fiber.Handler {
 			return c.SendStatus(fiber.StatusNotFound)
 		}
 
-		return c.JSON(&loggedInUserOutput{
+		return c.JSON(&currentUserOutput{
 			UserId:  user.Id,
 			Email:   user.Email,
 			Created: user.Created,

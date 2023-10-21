@@ -17,6 +17,6 @@ func RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler, s Service
 	usersRouter.Post("/login", MakeUserLoginHandler(s))
 
 	// get logged in user
-	// GET: /users/me
-	usersRouter.Get("/me", authMiddleware, MakeGetLoggedInUserHandler(s))
+	// GET: /users/current
+	usersRouter.Get("/current", authMiddleware, MakeGetCurrentUserHandler(s))
 }
