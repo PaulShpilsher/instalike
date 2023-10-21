@@ -1,33 +1,59 @@
 package config
 
 import (
+	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
 
-type Server struct {
-	Url                string
-	TokenExpireMinutes int
-	PrivateKeyFile     string
-	PublicKeyFile      string
+type ServerConfig struct {
+	Url string
 }
 
-type Database struct {
-	Url                  string
-	MaxOpenConnections   int
-	MaxIdleConnections   int
-	ConnctionMaxLifetime int
+type JwtConfig struct {
+	TokenExpirationMinutes int
+	PrivateKeyFile         string
+	PublicKeyFile          string
+}
+
+type DatabaseConfig struct {
+	Url                   string
+	MaxOpenConnections    int
+	MaxIdleConnections    int
+	MaxLifetimeConnctions int
 }
 
 type Config struct {
-	Server
-	Database
+	Server   ServerConfig
+	Jwt      JwtConfig
+	Database DatabaseConfig
 }
 
 func NewConfig() Config {
-	return Config{}
+	loadEnv()
+
+	return Config{
+
+		Server: ServerConfig{
+			Url: getString("SERVER_URL"),
+		},
+
+		Jwt: JwtConfig{
+			TokenExpirationMinutes: getInt("TOKEN_EXPIRATION_MINUTES"),
+			PrivateKeyFile:         getString("TOKEN_PRIVATE_KEY_FILE"),
+			PublicKeyFile:          getString("TOKEN_PUBLIC_KEY_FILE"),
+		},
+
+		Database: DatabaseConfig{
+			Url:                   getString("DB_URL"),
+			MaxOpenConnections:    getInt("DB_MAX_CONNECTIONS"),
+			MaxIdleConnections:    getInt("DB_MAX_IDLE_CONNECTIONS"),
+			MaxLifetimeConnctions: getInt("DB_MAX_LIFETIME_CONNECTIONS"),
+		},
+	}
 }
 
 func loadEnv() {
@@ -40,6 +66,28 @@ func loadEnv() {
 	envFile := filepath.Join(filepath.Dir(ex), ".env")
 
 	if err = godotenv.Load(envFile); err != nil {
-		panic("Error loading .env file")
+		panic("error loading .env file")
 	}
+}
+
+func getString(key string) string {
+	envValue, ok := os.LookupEnv(key)
+	if !ok || envValue == "" {
+		log.Panicf("missing environment variable %s", key)
+	}
+	return envValue
+}
+
+func getInt(key string) int {
+	envValue, ok := os.LookupEnv(key)
+	if !ok || envValue == "" {
+		log.Panicf("missing environment variable %s", key)
+	}
+
+	value, err := strconv.Atoi(envValue)
+	if err != nil {
+		log.Panicf("unable to parse environment variable %s err: %w", key, err)
+	}
+
+	return value
 }
