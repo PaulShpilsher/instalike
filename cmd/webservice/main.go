@@ -9,6 +9,7 @@ import (
 
 	"github.com/PaulShpilsher/instalike/database"
 	"github.com/PaulShpilsher/instalike/pkg/config"
+	"github.com/PaulShpilsher/instalike/pkg/jwt"
 	users "github.com/PaulShpilsher/instalike/pkg/users"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,6 +18,8 @@ import (
 func main() {
 
 	config := config.NewConfig()
+
+	jwt.Initialize(&config.Jwt)
 
 	db, _ := database.NewDbConnection(&config.Database)
 

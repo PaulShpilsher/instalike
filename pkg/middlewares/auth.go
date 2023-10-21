@@ -4,10 +4,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/PaulShpilsher/instalike/pkg/jwt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
-
-	"github.com/PaulShpilsher/instalike/pkg/utils/token"
 )
 
 func AuthenticateUser(c *fiber.Ctx) error {
@@ -24,7 +23,7 @@ func AuthenticateUser(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	claims, err := token.ValidateJwtToken(tokenString)
+	claims, err := jwt.ValidateJwtToken(tokenString)
 	if err != nil {
 		log.Error(err)
 		return c.SendStatus(fiber.StatusUnauthorized)

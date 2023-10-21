@@ -1,51 +1,19 @@
-package token
+package jwt
 
 import (
-	"crypto/rsa"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"time"
 
+	"github.com/PaulShpilsher/instalike/pkg/config"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var (
-	tokenTtl   time.Duration = time.Minute * time.Duration(60) // default is 1 hour
-	privateKey *rsa.PrivateKey
-	publicKey  *rsa.PublicKey
-)
+var jwtSettings JwtSettings
 
-func init() {
-	if value, ok := os.LookupEnv("TOKEN_EXPIRATION_MINUTES"); ok {
-		if minutes, err := strconv.Atoi(value); err == nil {
-			tokenTtl = time.Duration(minutes) * time.Minute
-		}
-	}
-
-	rsa, err := os.ReadFile("keys/rsa")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	prvKey, err := jwt.ParseRSAPrivateKeyFromPEM(rsa)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	rsaPub, err := os.ReadFile("keys/rsa.pub")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	pubKey, err := jwt.ParseRSAPublicKeyFromPEM(rsaPub)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	privateKey = prvKey
-	publicKey = pubKey
+func Initialize(config *config.JwtConfig) {
+	jwtSettings = NewJwtSettings(config)
 }
 
 func CreateJwtToken(userId int) (string, error) {
@@ -54,11 +22,11 @@ func CreateJwtToken(userId int) (string, error) {
 		ID:        strconv.Itoa(userId),
 		IssuedAt:  jwtTime(time.Now()),
 		NotBefore: jwtTime(time.Now()),
-		ExpiresAt: jwtTime(time.Now().Add(tokenTtl)),
+		ExpiresAt: jwtTime(time.Now().Add(jwtSettings.Ttl)),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	tokenString, err := token.SignedString(privateKey)
+	tokenString, err := token.SignedString(jwtSettings.PrivateKey)
 	if err != nil {
 		return "", fmt.Errorf("create: sign token: %w", err)
 	}
@@ -74,7 +42,7 @@ func ValidateJwtToken(token string) (jwt.MapClaims, error) {
 			return nil, fmt.Errorf("unexpected method: %s", jwtToken.Header["alg"])
 		}
 
-		return publicKey, nil
+		return jwtSettings.PublicKey, nil
 	})
 	if err != nil {
 		return nil, fmt.Errorf("validate: %w", err)
@@ -85,7 +53,6 @@ func ValidateJwtToken(token string) (jwt.MapClaims, error) {
 		return nil, fmt.Errorf("validate: invalid")
 	}
 
-	//return claims["dat"], nil
 	return claims, nil
 }
 

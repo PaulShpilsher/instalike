@@ -60,13 +60,13 @@ func loadEnv() {
 
 	ex, err := os.Executable()
 	if err != nil {
-		panic(err)
+		log.Panicln(err)
 	}
 
 	envFile := filepath.Join(filepath.Dir(ex), ".env")
 
 	if err = godotenv.Load(envFile); err != nil {
-		panic("error loading .env file")
+		log.Panicf("failed to load %s file. err: %v", envFile, err)
 	}
 }
 
@@ -86,7 +86,7 @@ func getInt(key string) int {
 
 	value, err := strconv.Atoi(envValue)
 	if err != nil {
-		log.Panicf("unable to parse environment variable %s err: %w", key, err)
+		log.Panicf("unable to parse environment variable %s err: %v", key, err)
 	}
 
 	return value
