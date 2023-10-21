@@ -34,7 +34,7 @@ func (r *repository) GetPosts() ([]Post, error) {
 
 	posts := []Post{}
 
-	if err := r.DB.Select(&posts, "SELECT id, user_id, contents, like_count, created_at, updated_at FROM posts ORDER BY created_at DESC"); err != nil {
+	if err := r.DB.Select(&posts, "SELECT id, user_id, contents, like_count, created_at, updated_at FROM posts WHERE deleted IS FALSE ORDER BY created_at DESC"); err != nil {
 		log.Printf("[DB ERROR]: %v", err)
 		return []Post{}, err
 	}
@@ -46,7 +46,7 @@ func (r *repository) GetPostById(postId int) (Post, error) {
 
 	post := Post{}
 
-	if err := r.DB.Get(&post, "SELECT id, user_id, contents, like_count, created_at, updated_at FROM posts WHERE id = $1 LIMIT 1", postId); err != nil {
+	if err := r.DB.Get(&post, "SELECT id, user_id, contents, like_count, created_at, updated_at FROM posts WHERE id = $1 AND deleted IS FALSE LIMIT 1", postId); err != nil {
 		if strings.Contains(err.Error(), "no rows in result set") {
 			return Post{}, utils.ErrNotFound
 		}
@@ -55,4 +55,22 @@ func (r *repository) GetPostById(postId int) (Post, error) {
 	}
 
 	return post, nil
+}
+
+func (r *repository) DeletePostById(postId int) error {
+
+	sql := `
+		UPDATE posts 
+			SET deleted = TRUE
+		WHERE id = $1
+			AND deleted IS FALSE
+	`
+	if result, err := r.DB.Exec(sql, postId); err != nil {
+		log.Printf("[DB ERROR]: %v", err)
+		return err
+	} else if rows, _ := result.RowsAffected(); rows == 0 {
+		return utils.ErrNotFound
+	}
+
+	return nil
 }

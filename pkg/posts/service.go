@@ -24,3 +24,7 @@ func (s *service) GetPostById(postId int) (Post, error) {
 	post, err := s.repo.GetPostById(postId)
 	return post, err
 }
+
+func (s *service) DeletePostById(postId int) error {
+	return s.repo.DeletePostById(postId)
+}

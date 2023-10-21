@@ -105,6 +105,29 @@ func MakeGetPostByIdHandler(s PostsService) fiber.Handler {
 	}
 }
 
+// MakeDeletePostByIdHandler - get post by id handler factory
+func MakeDeletePostByIdHandler(s PostsService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		postId, err := getPostId(c)
+		if err != nil {
+			return c.SendStatus(fiber.StatusBadRequest)
+		}
+
+		err = s.DeletePostById(postId)
+		if err != nil {
+			if errors.Is(err, utils.ErrNotFound) {
+				return c.SendStatus(fiber.StatusNotFound)
+			}
+
+			log.Error(err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
+		return c.SendStatus(fiber.StatusNoContent)
+	}
+}
+
 func getPostId(c *fiber.Ctx) (int, error) {
 	param := c.Params("postId")
 	value, err := strconv.Atoi(param)

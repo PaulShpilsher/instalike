@@ -22,7 +22,7 @@ func RegisterRoutes(api fiber.Router, authMiddleware fiber.Handler, s PostsServi
 	posts.Put("/:postId", notImplemented)
 
 	// Delete a post (DELETE /api/posts/{postID}).
-	posts.Delete("/:postId", notImplemented)
+	posts.Delete("/:postId", MakeDeletePostByIdHandler(s))
 
 }
 
