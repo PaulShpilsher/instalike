@@ -32,9 +32,7 @@ func MakeCreatePostHandler(s PostsService) fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(utils.NewValidationErrorOutput(errors))
 		}
 
-		userId := middleware.GetAuthenicatedUserId(c)
-
-		post, err := s.CreatePost(userId, payload.Contents)
+		post, err := s.CreatePost(middleware.GetAuthenicatedUserId(c), payload.Contents)
 		if err != nil {
 			log.Error(err)
 			return c.SendStatus(fiber.StatusInternalServerError)
@@ -114,10 +112,14 @@ func MakeDeletePostByIdHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		err = s.DeletePostById(postId)
+		err = s.DeletePostById(middleware.GetAuthenicatedUserId(c), postId)
 		if err != nil {
 			if errors.Is(err, utils.ErrNotFound) {
 				return c.SendStatus(fiber.StatusNotFound)
+			}
+
+			if errors.Is(err, utils.ErrUnauthorized) {
+				return c.SendStatus(fiber.StatusUnauthorized)
 			}
 
 			log.Error(err)

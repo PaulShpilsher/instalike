@@ -1,5 +1,7 @@
 package posts
 
+import "github.com/PaulShpilsher/instalike/pkg/utils"
+
 type service struct {
 	repo PostsRepository
 }
@@ -25,6 +27,16 @@ func (s *service) GetPostById(postId int) (Post, error) {
 	return post, err
 }
 
-func (s *service) DeletePostById(postId int) error {
+func (s *service) DeletePostById(userId int, postId int) error {
+
+	authorId, err := s.repo.GetAuthor(postId)
+	if err != nil {
+		return err
+	}
+
+	if userId != authorId {
+		return utils.ErrUnauthorized
+	}
+
 	return s.repo.DeletePostById(postId)
 }

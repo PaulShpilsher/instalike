@@ -74,6 +74,26 @@ func (r *repository) GetPostById(postId int) (Post, error) {
 	return post, nil
 }
 
+func (r *repository) GetAuthor(postId int) (int, error) {
+
+	sql := `
+		SELECT user_id
+		FROM posts
+		WHERE id = $1
+		LIMIT 1
+	`
+	var authorId int
+	if err := r.DB.Get(&authorId, sql, postId); err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return 0, utils.ErrNotFound
+		}
+		log.Printf("[DB ERROR]: %v", err)
+		return 0, err
+	}
+
+	return authorId, nil
+}
+
 func (r *repository) DeletePostById(postId int) error {
 
 	// we dont delete actual data from the database
