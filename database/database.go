@@ -11,7 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func NewSqlConnection() (*sqlx.DB, error) {
+func NewDbConnection() (*sqlx.DB, error) {
 
 	// Define database connection for PostgreSQL.
 	url := os.Getenv("DB_URL")
