@@ -3,7 +3,7 @@ package posts
 import "time"
 
 type Post struct {
-	Id      int
+	Id      int       `db:"id" json:"id"`
 	Created time.Time `db:"created_at" json:"created"`
 	Updated time.Time `db:"updated_at" json:"updated"`
 

@@ -32,7 +32,7 @@ func (r *repository) GetPosts() ([]Post, error) {
 
 	posts := []Post{}
 
-	if err := r.DB.Get(&posts, "SELECT id, user_id, contents, like_count, created_at, updated_at FROM posts ORDER BY created_at DESC"); err != nil {
+	if err := r.DB.Select(&posts, "SELECT id, user_id, contents, like_count, created_at, updated_at FROM posts ORDER BY created_at DESC"); err != nil {
 		log.Printf("[DB ERROR]: %v", err)
 		return []Post{}, err
 	}

@@ -13,7 +13,7 @@ func RegisterRoutes(api fiber.Router, authMiddleware fiber.Handler, s PostsServi
 	posts.Post("/", MakeCreatePostHandler(s))
 
 	// List all posts (GET /api/posts).
-	posts.Get("/", notImplemented)
+	posts.Get("/", MakeGetPostsHandler(s))
 
 	// get a specific post by ID (GET /api/posts/{postID}).
 	posts.Get("/:postId", notImplemented)

@@ -2,6 +2,7 @@ package posts
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
 	"github.com/PaulShpilsher/instalike/pkg/utils"
@@ -40,6 +41,44 @@ func MakeCreatePostHandler(s PostsService) fiber.Handler {
 
 		log.Debugf("post created:  %v", post)
 		return c.SendStatus(fiber.StatusCreated)
+	}
+}
+
+///
+/// get posts
+///
+
+type postOutput struct {
+	Id        int       `json:"id"`
+	Created   time.Time `json:"created"`
+	IsUpdated bool      `json:"isUpdated"`
+
+	UserId    int    `json:"userId"`
+	Contents  string `json:"contents"`
+	LikeCount int    `json:"likeCount"`
+}
+
+func makePostOutput(post Post) postOutput {
+	return postOutput{
+		Id:        post.Id,
+		Created:   post.Created,
+		IsUpdated: post.Created != post.Updated,
+		Contents:  post.Contents,
+		LikeCount: post.LikeCount,
+	}
+}
+
+// MakeGetPostsHandler - create post handler factory
+func MakeGetPostsHandler(s PostsService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		posts, err := s.GetPosts()
+		if err != nil {
+			log.Error(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(utils.NewErrorOutput("Server error"))
+		}
+
+		log.Debugf("got %d posts", len(posts))
+		return c.JSON(utils.Map(posts, makePostOutput))
 	}
 }
 
