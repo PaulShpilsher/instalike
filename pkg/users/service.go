@@ -2,8 +2,9 @@ package users
 
 import (
 	"fmt"
+	"strconv"
 
-	"github.com/PaulShpilsher/instalike/pkg/utils/token"
+	"github.com/PaulShpilsher/instalike/pkg/token"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -16,11 +17,13 @@ type UserRepository interface {
 
 type service struct {
 	repo UserRepository
+	jwt  token.JwtService
 }
 
-func NewService(repo UserRepository) *service {
+func NewService(repo UserRepository, jwt token.JwtService) *service {
 	return &service{
 		repo: repo,
+		jwt:  jwt,
 	}
 }
 
@@ -58,12 +61,12 @@ func (s *service) Login(email string, password string) (int, string, error) {
 		return 0, "", err
 	}
 
-	jwtToken, err := token.CreateJwtToken(user.Id)
+	token, err := s.jwt.CreateToken(strconv.Itoa((user.Id)))
 	if err != nil {
 		return 0, "", err
 	}
 
-	return user.Id, jwtToken, nil
+	return user.Id, token, nil
 }
 
 func (s *service) GetUserById(id int) (User, error) {

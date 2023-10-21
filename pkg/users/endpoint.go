@@ -8,30 +8,28 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 
-	"github.com/PaulShpilsher/instalike/pkg/middlewares"
+	"github.com/PaulShpilsher/instalike/pkg/middleware"
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
-// Service layer interface
-type Service interface {
+// UserService layer interface
+type UserService interface {
 	Register(email string, password string) (userId int, err error)
 	Login(email string, password string) (userId int, token string, err error)
 	GetUserById(id int) (user User, err error)
 }
 
-// signu DTOs
+///
+/// Sign up
+///
 
 type registerInput struct {
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required,min=5"`
 }
 
-type registerOutput struct {
-	UserId int `json:"userId"`
-}
-
 // MakeUserRegisterHandler - register handler factory
-func MakeUserRegisterHandler(s Service) fiber.Handler {
+func MakeUserRegisterHandler(s UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		var payload registerInput
@@ -47,20 +45,21 @@ func MakeUserRegisterHandler(s Service) fiber.Handler {
 		if err != nil {
 			log.Error(err)
 			if strings.Contains(err.Error(), "user already exists") {
-				return c.Status(fiber.StatusConflict).JSON(utils.NewErrorOutput("User with that email already exists"))
+				return c.Status(fiber.StatusConflict).JSON(utils.NewErrorOutput("user already exists"))
 			} else {
 				return c.Status(fiber.StatusInternalServerError).JSON(utils.NewErrorOutput("Server error"))
 			}
 		}
 
 		log.Debugf("user %s registered. id: %d", payload.Email, userId)
-		return c.Status(fiber.StatusCreated).JSON(registerOutput{
-			UserId: userId,
-		})
+		return c.SendStatus(fiber.StatusCreated)
 	}
 }
 
-// login DTOs
+///
+/// Login
+///
+
 type loginInput struct {
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required"`
@@ -72,7 +71,7 @@ type loginOutput struct {
 }
 
 // MakeUserLoginHandler - login handler factory
-func MakeUserLoginHandler(s Service) fiber.Handler {
+func MakeUserLoginHandler(s UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var payload loginInput
 		if err := c.BodyParser(&payload); err != nil {
@@ -99,19 +98,22 @@ func MakeUserLoginHandler(s Service) fiber.Handler {
 	}
 }
 
-// user information DTO
-type loggedInUserOutput struct {
+///
+/// Current user information
+///
+
+type currentUserOutput struct {
 	UserId  int       `json:"userId"`
 	Email   string    `json:"email"`
 	Created time.Time `json:"created"`
 	Updated time.Time `json:"updated"`
 }
 
-// MakeGetLoggedInUserHandler - get logged in user information
-func MakeGetLoggedInUserHandler(s Service) fiber.Handler {
+// MakeGetCurrentUserHandler - get logged in user information
+func MakeGetCurrentUserHandler(s UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
-		userId := middlewares.GetAuthenicatedUserId(c)
+		userId := middleware.GetAuthenicatedUserId(c)
 
 		user, err := s.GetUserById(userId)
 		if err != nil {
@@ -119,7 +121,7 @@ func MakeGetLoggedInUserHandler(s Service) fiber.Handler {
 			return c.SendStatus(fiber.StatusNotFound)
 		}
 
-		return c.JSON(&loggedInUserOutput{
+		return c.JSON(&currentUserOutput{
 			UserId:  user.Id,
 			Email:   user.Email,
 			Created: user.Created,

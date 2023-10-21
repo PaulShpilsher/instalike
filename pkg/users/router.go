@@ -2,11 +2,9 @@ package users
 
 import (
 	"github.com/gofiber/fiber/v2"
-
-	"github.com/PaulShpilsher/instalike/pkg/middlewares"
 )
 
-func RegisterRoutes(router fiber.Router, s Service) {
+func RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler, s UserService) {
 
 	usersRouter := router.Group("/users")
 
@@ -19,6 +17,6 @@ func RegisterRoutes(router fiber.Router, s Service) {
 	usersRouter.Post("/login", MakeUserLoginHandler(s))
 
 	// get logged in user
-	// GET: /users/me
-	usersRouter.Get("/me", middlewares.AuthenticateUser, MakeGetLoggedInUserHandler(s))
+	// GET: /users/current
+	usersRouter.Get("/current", authMiddleware, MakeGetCurrentUserHandler(s))
 }
