@@ -1,5 +1,11 @@
 package utils
 
+import "errors"
+
+var (
+	ErrNotFound = errors.New("not found")
+)
+
 type ErrorOutput struct {
 	Message string           `json:"message,omitempty"`
 	Errors  []*ErrorResponse `json:"errors,omitempty"`

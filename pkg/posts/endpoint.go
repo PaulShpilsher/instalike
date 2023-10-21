@@ -1,8 +1,8 @@
 package posts
 
 import (
+	"errors"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
@@ -94,7 +94,7 @@ func MakeGetPostByIdHandler(s PostsService) fiber.Handler {
 
 		post, err := s.GetPostById(postId)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
+			if errors.Is(err, utils.ErrNotFound) {
 				return c.SendStatus(fiber.StatusInternalServerError)
 			}
 

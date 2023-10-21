@@ -1,10 +1,10 @@
 package posts
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
+	"github.com/PaulShpilsher/instalike/pkg/utils"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -48,7 +48,7 @@ func (r *repository) GetPostById(postId int) (Post, error) {
 
 	if err := r.DB.Get(&post, "SELECT id, user_id, contents, like_count, created_at, updated_at FROM posts WHERE id = $1 LIMIT 1", postId); err != nil {
 		if strings.Contains(err.Error(), "no rows in result set") {
-			return Post{}, fmt.Errorf("post not found")
+			return Post{}, utils.ErrNotFound
 		}
 		log.Printf("[DB ERROR]: %v", err)
 		return Post{}, err
