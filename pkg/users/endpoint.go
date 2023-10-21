@@ -12,13 +12,6 @@ import (
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
-// UserService layer interface
-type UserService interface {
-	Register(email string, password string) (userId int, err error)
-	Login(email string, password string) (userId int, token string, err error)
-	GetUserById(id int) (user User, err error)
-}
-
 ///
 /// Sign up
 ///

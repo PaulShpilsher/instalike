@@ -8,13 +8,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserRepository interface {
-	CreateUser(email string, passwordHash string) (int, error)
-	GetUserById(id int) (User, error)
-	GetUserByEmail(email string) (User, error)
-	GetUserExistsByEmail(email string) (bool, error)
-}
-
 type service struct {
 	repo UserRepository
 	jwt  token.JwtService
