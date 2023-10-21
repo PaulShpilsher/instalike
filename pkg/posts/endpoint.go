@@ -225,7 +225,7 @@ func MakeUploadMediaFileToPostHandler(s PostsService) fiber.Handler {
 
 		defer buffer.Close()
 
-		userId := 9 // middleware.GetAuthenicatedUserId(c)
+		userId := middleware.GetAuthenicatedUserId(c)
 		err = s.AttachFileToPost(userId, postId, contentType, int(file.Size), buffer)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(err.Error())

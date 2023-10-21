@@ -25,9 +25,9 @@ func RegisterRoutes(api fiber.Router, authMiddleware fiber.Handler, s PostsServi
 	posts.Delete("/:postId", MakeDeletePostHandler(s))
 
 	// Add multimedia file to post (POST /api/posts/{postID}/file)
-	// posts.Post("/:postId/file", MakeUploadHandler(s))
-	temp := api.Group("/multimedia")
-	temp.Post("/:postId/upload", MakeUploadMediaFileToPostHandler(s))
+	posts.Post("/:postId/attachment", MakeUploadMediaFileToPostHandler(s))
+	// temp := api.Group("/multimedia")
+	// temp.Post("/:postId/upload", MakeUploadMediaFileToPostHandler(s))
 
 }
 
