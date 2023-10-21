@@ -35,4 +35,7 @@ CREATE TABLE IF NOT EXISTS post_attachments (
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 )
 
+CREATE INDEX post_attachments_post_id_created_at_idx ON posts(post_id. created_at);
+
+
 COMMIT;
