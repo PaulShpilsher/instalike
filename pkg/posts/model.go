@@ -4,6 +4,10 @@ import "time"
 
 type Post struct {
 	Id      int
-	Created time.Time `db:"created_at" json:"created_at"`
-	Updated time.Time `db:"updated_at" json:"updated_at"`
+	Created time.Time `db:"created_at" json:"created"`
+	Updated time.Time `db:"updated_at" json:"updated"`
+
+	UserId    int    `db:"user_id" json:"userId"`
+	Contents  string `db:"contents" json:"contents"`
+	LikeCount int    `db:"like_count" json:"likeCount"`
 }
