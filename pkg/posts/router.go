@@ -16,13 +16,13 @@ func RegisterRoutes(api fiber.Router, authMiddleware fiber.Handler, s PostsServi
 	posts.Get("/", MakeGetPostsHandler(s))
 
 	// get a specific post by ID (GET /api/posts/{postID}).
-	posts.Get("/:postId", MakeGetPostByIdHandler(s))
+	posts.Get("/:postId", MakeGetPostHandler(s))
 
 	// Update an existing post (PUT /api/posts/{postID}).
-	posts.Put("/:postId", MakeUpdatePostByIdHandler(s))
+	posts.Put("/:postId", MakeUpdatePostHandler(s))
 
 	// Delete a post (DELETE /api/posts/{postID}).
-	posts.Delete("/:postId", MakeDeletePostByIdHandler(s))
+	posts.Delete("/:postId", MakeDeletePostHandler(s))
 
 }
 

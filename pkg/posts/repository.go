@@ -53,7 +53,7 @@ func (r *repository) GetPosts() ([]Post, error) {
 	return posts, nil
 }
 
-func (r *repository) GetPostById(postId int) (Post, error) {
+func (r *repository) GetPost(postId int) (Post, error) {
 
 	sql := `
 		SELECT	id,user_id, contents, like_count, created_at, updated_at
@@ -94,7 +94,7 @@ func (r *repository) GetAuthor(postId int) (int, error) {
 	return authorId, nil
 }
 
-func (r *repository) DeletePostById(postId int) error {
+func (r *repository) DeletePost(postId int) error {
 
 	// we dont delete actual data from the database
 	// instead we just set the deleted flag to true

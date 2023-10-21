@@ -84,8 +84,8 @@ func MakeGetPostsHandler(s PostsService) fiber.Handler {
 /// get post
 ///
 
-// MakeGetPostByIdHandler - get post by id handler factory
-func MakeGetPostByIdHandler(s PostsService) fiber.Handler {
+// MakeGetPostHandler - get post by id handler factory
+func MakeGetPostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		postId, err := getPostId(c)
@@ -93,7 +93,7 @@ func MakeGetPostByIdHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		post, err := s.GetPostById(postId)
+		post, err := s.GetPost(postId)
 		if err != nil {
 			if errors.Is(err, utils.ErrNotFound) {
 				return c.SendStatus(fiber.StatusNotFound)
@@ -111,8 +111,8 @@ func MakeGetPostByIdHandler(s PostsService) fiber.Handler {
 /// delete post
 ///
 
-// MakeDeletePostByIdHandler - delete post by id handler factory
-func MakeDeletePostByIdHandler(s PostsService) fiber.Handler {
+// MakeDeletePostHandler - delete post by id handler factory
+func MakeDeletePostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		postId, err := getPostId(c)
@@ -120,7 +120,7 @@ func MakeDeletePostByIdHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		err = s.DeletePostById(middleware.GetAuthenicatedUserId(c), postId)
+		err = s.DeletePost(middleware.GetAuthenicatedUserId(c), postId)
 		if err != nil {
 			if errors.Is(err, utils.ErrNotFound) {
 				return c.SendStatus(fiber.StatusNotFound)
@@ -146,8 +146,8 @@ type updatePostInput struct {
 	Contents string `json:"contents" validate:"required"`
 }
 
-// MakeUpdatePostByIdHandler - update post by id handler factory
-func MakeUpdatePostByIdHandler(s PostsService) fiber.Handler {
+// MakeUpdatePostHandler - update post by id handler factory
+func MakeUpdatePostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		postId, err := getPostId(c)
