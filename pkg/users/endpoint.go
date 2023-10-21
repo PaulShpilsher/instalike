@@ -12,8 +12,8 @@ import (
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
-// Service layer interface
-type Service interface {
+// UserService layer interface
+type UserService interface {
 	Register(email string, password string) (userId int, err error)
 	Login(email string, password string) (userId int, token string, err error)
 	GetUserById(id int) (user User, err error)
@@ -29,7 +29,7 @@ type registerInput struct {
 }
 
 // MakeUserRegisterHandler - register handler factory
-func MakeUserRegisterHandler(s Service) fiber.Handler {
+func MakeUserRegisterHandler(s UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		var payload registerInput
@@ -71,7 +71,7 @@ type loginOutput struct {
 }
 
 // MakeUserLoginHandler - login handler factory
-func MakeUserLoginHandler(s Service) fiber.Handler {
+func MakeUserLoginHandler(s UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var payload loginInput
 		if err := c.BodyParser(&payload); err != nil {
@@ -110,7 +110,7 @@ type currentUserOutput struct {
 }
 
 // MakeGetCurrentUserHandler - get logged in user information
-func MakeGetCurrentUserHandler(s Service) fiber.Handler {
+func MakeGetCurrentUserHandler(s UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		userId := middleware.GetAuthenicatedUserId(c)
