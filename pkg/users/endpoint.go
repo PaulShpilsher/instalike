@@ -47,7 +47,7 @@ func MakeUserRegisterHandler(s Service) fiber.Handler {
 		if err != nil {
 			log.Error(err)
 			if strings.Contains(err.Error(), "user already exists") {
-				return c.Status(fiber.StatusConflict).JSON(utils.NewErrorOutput("User with that email already exists"))
+				return c.Status(fiber.StatusConflict).JSON(utils.NewErrorOutput("user already exists"))
 			} else {
 				return c.Status(fiber.StatusInternalServerError).JSON(utils.NewErrorOutput("Server error"))
 			}
