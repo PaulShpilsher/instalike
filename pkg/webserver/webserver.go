@@ -6,8 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/PaulShpilsher/instalike/database"
 	"github.com/PaulShpilsher/instalike/pkg/config"
+	"github.com/PaulShpilsher/instalike/pkg/database"
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
 	"github.com/PaulShpilsher/instalike/pkg/token"
 	"github.com/PaulShpilsher/instalike/pkg/users"

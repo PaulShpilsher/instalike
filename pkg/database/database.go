@@ -1,10 +1,10 @@
 package database
 
 import (
+	"log"
 	"time"
 
 	"github.com/PaulShpilsher/instalike/pkg/config"
-	"github.com/gofiber/fiber/v2/log"
 	_ "github.com/jackc/pgx/v5/stdlib" // Standard library bindings for pgx
 	"github.com/jmoiron/sqlx"
 )
