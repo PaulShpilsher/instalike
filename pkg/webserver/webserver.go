@@ -9,6 +9,7 @@ import (
 	"github.com/PaulShpilsher/instalike/pkg/config"
 	"github.com/PaulShpilsher/instalike/pkg/database"
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
+	"github.com/PaulShpilsher/instalike/pkg/posts"
 	"github.com/PaulShpilsher/instalike/pkg/token"
 	"github.com/PaulShpilsher/instalike/pkg/users"
 	"github.com/jmoiron/sqlx"
@@ -39,6 +40,13 @@ func NewWebServer(config *config.Config) WebServer {
 		repository := users.NewRepository(db)
 		service := users.NewService(repository, jwtService)
 		users.RegisterRoutes(api, authMiddleware, service)
+	}
+
+	// /api/posts
+	{
+		repository := posts.NewRepository(db)
+		service := posts.NewService(repository)
+		posts.RegisterRoutes(api, authMiddleware, service)
 	}
 
 	return WebServer{
