@@ -14,3 +14,8 @@ func (s *service) CreatePost(userId int, contents string) (Post, error) {
 	post, err := s.repo.CreatePost(userId, contents)
 	return post, err
 }
+
+func (s *service) GetPosts() ([]Post, error) {
+	posts, err := s.repo.GetPosts()
+	return posts, err
+}
