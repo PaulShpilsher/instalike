@@ -80,6 +80,10 @@ func MakeGetPostsHandler(s PostsService) fiber.Handler {
 	}
 }
 
+///
+/// get post
+///
+
 // MakeGetPostByIdHandler - get post by id handler factory
 func MakeGetPostByIdHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -103,7 +107,11 @@ func MakeGetPostByIdHandler(s PostsService) fiber.Handler {
 	}
 }
 
-// MakeDeletePostByIdHandler - get post by id handler factory
+///
+/// delete post
+///
+
+// MakeDeletePostByIdHandler - delete post by id handler factory
 func MakeDeletePostByIdHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -118,8 +126,52 @@ func MakeDeletePostByIdHandler(s PostsService) fiber.Handler {
 				return c.SendStatus(fiber.StatusNotFound)
 			}
 
-			if errors.Is(err, utils.ErrUnauthorized) {
-				return c.SendStatus(fiber.StatusUnauthorized)
+			if errors.Is(err, utils.ErrForbidden) {
+				return c.SendStatus(fiber.StatusForbidden)
+			}
+
+			log.Error(err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
+		return c.SendStatus(fiber.StatusNoContent)
+	}
+}
+
+///
+/// update post
+///
+
+type updatePostInput struct {
+	Contents string `json:"contents" validate:"required"`
+}
+
+// MakeUpdatePostByIdHandler - update post by id handler factory
+func MakeUpdatePostByIdHandler(s PostsService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		postId, err := getPostId(c)
+		if err != nil {
+			return c.SendStatus(fiber.StatusBadRequest)
+		}
+
+		var payload updatePostInput
+		if err := c.BodyParser(&payload); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
+		}
+
+		if errors := utils.ValidateStruct(payload); errors != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(utils.NewValidationErrorOutput(errors))
+		}
+
+		err = s.UpdatePost(middleware.GetAuthenicatedUserId(c), postId, payload.Contents)
+		if err != nil {
+			if errors.Is(err, utils.ErrNotFound) {
+				return c.SendStatus(fiber.StatusNotFound)
+			}
+
+			if errors.Is(err, utils.ErrForbidden) {
+				return c.SendStatus(fiber.StatusForbidden)
 			}
 
 			log.Error(err)

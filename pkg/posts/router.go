@@ -9,7 +9,7 @@ func RegisterRoutes(api fiber.Router, authMiddleware fiber.Handler, s PostsServi
 	posts := api.Group("/posts")
 	posts.Use(authMiddleware)
 
-	// Create a new post (POST /api/posts
+	// Create a new post (POST /api/posts)
 	posts.Post("/", MakeCreatePostHandler(s))
 
 	// List all posts (GET /api/posts).
@@ -19,13 +19,13 @@ func RegisterRoutes(api fiber.Router, authMiddleware fiber.Handler, s PostsServi
 	posts.Get("/:postId", MakeGetPostByIdHandler(s))
 
 	// Update an existing post (PUT /api/posts/{postID}).
-	posts.Put("/:postId", notImplemented)
+	posts.Put("/:postId", MakeUpdatePostByIdHandler(s))
 
 	// Delete a post (DELETE /api/posts/{postID}).
 	posts.Delete("/:postId", MakeDeletePostByIdHandler(s))
 
 }
 
-func notImplemented(c *fiber.Ctx) error {
-	return c.SendStatus(fiber.StatusNotImplemented)
-}
+// func notImplemented(c *fiber.Ctx) error {
+// 	return c.SendStatus(fiber.StatusNotImplemented)
+// }

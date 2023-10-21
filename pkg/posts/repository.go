@@ -56,10 +56,10 @@ func (r *repository) GetPosts() ([]Post, error) {
 func (r *repository) GetPostById(postId int) (Post, error) {
 
 	sql := `
-		SELECT id, user_id, contents, like_count, created_at, updated_at
-		FROM posts
-		WHERE id = $1
-		AND deleted IS FALSE
+		SELECT	id,user_id, contents, like_count, created_at, updated_at
+		FROM	posts
+		WHERE	id = $1
+			AND	deleted IS FALSE
 		LIMIT 1
 	`
 	post := Post{}
@@ -77,9 +77,9 @@ func (r *repository) GetPostById(postId int) (Post, error) {
 func (r *repository) GetAuthor(postId int) (int, error) {
 
 	sql := `
-		SELECT user_id
-		FROM posts
-		WHERE id = $1
+		SELECT	user_id
+		FROM	posts
+		WHERE	id = $1 AND	deleted IS FALSE
 		LIMIT 1
 	`
 	var authorId int
@@ -99,12 +99,27 @@ func (r *repository) DeletePostById(postId int) error {
 	// we dont delete actual data from the database
 	// instead we just set the deleted flag to true
 	sql := `
-		UPDATE posts 
-			SET deleted = TRUE
-		WHERE id = $1
-			AND deleted IS FALSE
+		UPDATE	posts
+		SET		deleted = TRUE
+		WHERE	id = $1 AND	deleted IS FALSE
 	`
 	if result, err := r.DB.Exec(sql, postId); err != nil {
+		log.Printf("[DB ERROR]: %v", err)
+		return err
+	} else if rows, _ := result.RowsAffected(); rows == 0 {
+		return utils.ErrNotFound
+	}
+
+	return nil
+}
+
+func (r *repository) UpdatePost(postId int, contents string) error {
+	sql := `
+		UPDATE	posts 
+		SET		contents = $2
+		WHERE	id = $1 AND deleted IS FALSE
+	`
+	if result, err := r.DB.Exec(sql, postId, contents); err != nil {
 		log.Printf("[DB ERROR]: %v", err)
 		return err
 	} else if rows, _ := result.RowsAffected(); rows == 0 {
