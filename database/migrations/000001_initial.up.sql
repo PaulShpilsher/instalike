@@ -1,5 +1,6 @@
 BEGIN;
 
+-- users
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL NOT NULL PRIMARY KEY,
   email TEXT NOT NULL UNIQUE,
@@ -8,6 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+
+--  posts
 CREATE TABLE IF NOT EXISTS posts (
 	id SERIAL NOT NULL PRIMARY KEY,
 	user_id INTEGER NOT NULL REFERENCES users(id),
@@ -20,5 +23,16 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 CREATE INDEX posts_created_at_idx ON posts(created_at DESC, id) WHERE deleted = FALSE;
+
+
+--  post attachments
+CREATE TABLE IF NOT EXISTS post_attachments (
+	id BIGSERIAL NOT NULL PRIMARY KEY,
+	post_id INTEGER NOT NULL REFERENCES posts(id),
+	content_type TEXT NOT NULL,
+	attachment_size INT NOT NULL,
+	attachment_data BYTEA NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+)
 
 COMMIT;
