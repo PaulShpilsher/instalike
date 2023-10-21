@@ -2,6 +2,7 @@ package users
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/PaulShpilsher/instalike/pkg/token"
 	"golang.org/x/crypto/bcrypt"
@@ -60,7 +61,7 @@ func (s *service) Login(email string, password string) (int, string, error) {
 		return 0, "", err
 	}
 
-	token, err := s.jwt.CreateToken(string(user.Id))
+	token, err := s.jwt.CreateToken(strconv.Itoa((user.Id)))
 	if err != nil {
 		return 0, "", err
 	}
