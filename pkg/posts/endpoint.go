@@ -78,7 +78,6 @@ func MakeGetPostsHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
-		log.Debugf("got %d posts", len(posts))
 		return c.JSON(utils.Map(posts, makePostOutput))
 	}
 }
