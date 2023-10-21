@@ -16,12 +16,14 @@ func NewRepository(db *sqlx.DB) *repository {
 	}
 }
 
-func (r *repository) CreatePost(userId int, contents string) (int, error) {
-	var id int
-	if err := r.DB.Get(&id, "INSERT INTO posts (user_id, contents) VALUES($1, $2) RETURNING id", userId, contents); err != nil {
+func (r *repository) CreatePost(userId int, contents string) (Post, error) {
+
+	post := Post{}
+
+	if err := r.DB.Get(&post, "INSERT INTO posts (user_id, contents) VALUES($1, $2) RETURNING *", userId, contents); err != nil {
 		log.Printf("[DB ERROR]: %v", err)
-		return 0, err
+		return Post{}, err
 	}
 
-	return id, nil
+	return post, nil
 }
