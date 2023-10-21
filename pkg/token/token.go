@@ -4,10 +4,10 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/PaulShpilsher/instalike/pkg/config"
+	"github.com/PaulShpilsher/instalike/pkg/utils"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -73,7 +73,7 @@ func (s *service) ValidateToken(token string) (string, error) {
 
 func getPrivateKey(filename string) *rsa.PrivateKey {
 
-	key, err := jwt.ParseRSAPrivateKeyFromPEM(readFile(filename))
+	key, err := jwt.ParseRSAPrivateKeyFromPEM(utils.ReadFile(filename))
 	if err != nil {
 		log.Panicf("parsing private key failed. err: %v", err)
 	}
@@ -82,18 +82,10 @@ func getPrivateKey(filename string) *rsa.PrivateKey {
 }
 
 func getPublicKey(filename string) *rsa.PublicKey {
-	key, err := jwt.ParseRSAPublicKeyFromPEM(readFile(filename))
+	key, err := jwt.ParseRSAPublicKeyFromPEM(utils.ReadFile(filename))
 	if err != nil {
 		log.Panicf("parsing public key failed. err: %v", err)
 	}
 
 	return key
-}
-
-func readFile(filename string) []byte {
-	data, err := os.ReadFile(filename)
-	if err != nil {
-		log.Panicf("read %s files failed. err: %v", filename, err)
-	}
-	return data
 }
