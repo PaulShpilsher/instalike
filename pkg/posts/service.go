@@ -51,7 +51,8 @@ func (s *service) UpdatePost(userId int, postId int, contents string) error {
 
 func (s *service) AttachFileToPost(userId int, postId int, contentType string, size int, reader io.Reader) error {
 
-	if err := s.validatePostAuthor(userId, postId); err != nil {
+	err := s.validatePostAuthor(userId, postId)
+	if err != nil {
 		return err
 	}
 
@@ -63,8 +64,7 @@ func (s *service) AttachFileToPost(userId int, postId int, contentType string, s
 	}
 
 	err = s.repo.AttachFileToPost(postId, contentType, binary)
-
-	return nil
+	return err
 }
 
 // private functions
