@@ -33,9 +33,9 @@ CREATE TABLE IF NOT EXISTS post_attachments (
 	attachment_size INT NOT NULL,
 	attachment_data BYTEA NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-)
+);
 
-CREATE INDEX post_attachments_post_id_created_at_idx ON posts(post_id. created_at);
+CREATE INDEX post_attachments_post_id_created_at_idx ON post_attachments(post_id, created_at);
 
 
 COMMIT;
