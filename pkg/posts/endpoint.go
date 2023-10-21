@@ -95,7 +95,7 @@ func MakeGetPostByIdHandler(s PostsService) fiber.Handler {
 		post, err := s.GetPostById(postId)
 		if err != nil {
 			if errors.Is(err, utils.ErrNotFound) {
-				return c.SendStatus(fiber.StatusInternalServerError)
+				return c.SendStatus(fiber.StatusNotFound)
 			}
 
 			log.Error(err)
