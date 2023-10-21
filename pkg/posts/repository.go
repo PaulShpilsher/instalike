@@ -129,3 +129,7 @@ func (r *repository) UpdatePost(postId int, contents string) error {
 
 	return nil
 }
+
+func (r *repository) AttachFileToPost(postId int, contentType string, binary []byte) error {
+	return nil
+}

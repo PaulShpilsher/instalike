@@ -33,6 +33,12 @@ func NewWebServer(config *config.Config) WebServer {
 	authMiddleware := middleware.GetAuthMiddleware(jwtService)
 
 	api := fiber.New()
+
+	app.Static(
+		"/static",      // mount address
+		"../../public", // path to the file folder
+	)
+
 	app.Mount("/api", api)
 
 	// /api/users

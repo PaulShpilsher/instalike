@@ -1,6 +1,10 @@
 package posts
 
-import "github.com/PaulShpilsher/instalike/pkg/utils"
+import (
+	"io"
+
+	"github.com/PaulShpilsher/instalike/pkg/utils"
+)
 
 type service struct {
 	repo PostsRepository
@@ -43,6 +47,24 @@ func (s *service) UpdatePost(userId int, postId int, contents string) error {
 	}
 
 	return s.repo.UpdatePost(postId, contents)
+}
+
+func (s *service) AttachFileToPost(userId int, postId int, contentType string, size int, reader io.Reader) error {
+
+	if err := s.validatePostAuthor(userId, postId); err != nil {
+		return err
+	}
+
+	// TODO: read data in chunks, but for now just read the whole file in memory
+	// and store it to the database
+	binary, err := io.ReadAll(reader)
+	if err != nil {
+		return err
+	}
+
+	err = s.repo.AttachFileToPost(postId, contentType, binary)
+
+	return nil
 }
 
 // private functions

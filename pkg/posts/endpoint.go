@@ -182,6 +182,51 @@ func MakeUpdatePostHandler(s PostsService) fiber.Handler {
 	}
 }
 
+///
+/// Upload files
+///
+
+const MaxUploadSize = 1024 * 1024 // 1Mb
+
+// MakeUploadMediaFileToPostHandler - upload multimedia files
+func MakeUploadMediaFileToPostHandler(s PostsService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		postId, err := getPostId(c)
+		if err != nil {
+			return c.SendStatus(fiber.StatusBadRequest)
+		}
+
+		file, err := c.FormFile("file")
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
+		}
+
+		if file.Size > MaxUploadSize {
+			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput("file is too big"))
+		}
+
+		// TODO: allowed content types
+		contentType := file.Header["Content-Type"][0]
+
+		// get buffer from file
+		buffer, err := file.Open()
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
+		}
+
+		defer buffer.Close()
+
+		userId := 9 // middleware.GetAuthenicatedUserId(c)
+		err = s.AttachFileToPost(userId, postId, contentType, int(file.Size), buffer)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+
+		return c.SendStatus(fiber.StatusNoContent)
+	}
+}
+
 func getPostId(c *fiber.Ctx) (int, error) {
 	param := c.Params("postId")
 	value, err := strconv.Atoi(param)

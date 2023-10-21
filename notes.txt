@@ -11,7 +11,18 @@ go get github.com/google/uuid
 		app.Use(logger.New())
 
 
+docker run \
+  -p 9000:9000 \
+  -p 9001:9001 \
+  --name minio1 \
+  -v data:/data \
+  -e "MINIO_ROOT_USER=AKIAIOSFODNN7EXAMPLE" \
+  -e "MINIO_ROOT_PASSWORD=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" \
+  quay.io/minio/minio server /data --console-address ":9001"
 
+http://localhost:9001/dashboard:
+username: AKIAIOSFODNN7EXAMPLE
+password: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 
 version: '3'
 services:
