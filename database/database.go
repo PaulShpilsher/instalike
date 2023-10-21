@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/PaulShpilsher/instalike/pkg/config"
@@ -10,12 +9,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func NewDbConnection(config *config.DatabaseConfig) (*sqlx.DB, error) {
+func NewDbConnection(config *config.DatabaseConfig) *sqlx.DB {
 
 	// Define database connection for PostgreSQL.
 	db, err := sqlx.Connect("pgx", config.Url)
 	if err != nil {
-		log.Fatalf("error, not connected to database, %v", err)
+		log.Panicf("not connected to database, err: %v", err)
 	}
 
 	// Set database connection settings.
@@ -25,9 +24,9 @@ func NewDbConnection(config *config.DatabaseConfig) (*sqlx.DB, error) {
 
 	// Try to ping database.
 	if err := db.Ping(); err != nil {
-		defer db.Close() // close database connection
-		return nil, fmt.Errorf("error, not sent ping to database, %w", err)
+		defer db.Close()
+		log.Panicf("failed to ping to database, %v", err)
 	}
 
-	return db, nil
+	return db
 }

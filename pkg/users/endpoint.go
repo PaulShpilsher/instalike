@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 
-	"github.com/PaulShpilsher/instalike/pkg/middlewares"
+	"github.com/PaulShpilsher/instalike/pkg/middleware"
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
@@ -111,7 +111,7 @@ type loggedInUserOutput struct {
 func MakeGetLoggedInUserHandler(s Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
-		userId := middlewares.GetAuthenicatedUserId(c)
+		userId := middleware.GetAuthenicatedUserId(c)
 
 		user, err := s.GetUserById(userId)
 		if err != nil {

@@ -32,7 +32,7 @@ type Config struct {
 	Database DatabaseConfig
 }
 
-func NewConfig() Config {
+func LoadConfig() Config {
 	loadEnv()
 
 	return Config{
