@@ -10,7 +10,7 @@ func RegisterRoutes(api fiber.Router, authMiddleware fiber.Handler, s PostsServi
 	posts.Use(authMiddleware)
 
 	// Create a new post (POST /api/posts
-	posts.Post("/", notImplemented)
+	posts.Post("/", MakeCreatePostHandler(s))
 
 	// List all posts (GET /api/posts).
 	posts.Get("/", notImplemented)
