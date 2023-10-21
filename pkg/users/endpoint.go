@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
+	"github.com/PaulShpilsher/instalike/pkg/token"
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
@@ -59,12 +60,11 @@ type loginInput struct {
 }
 
 type loginOutput struct {
-	UserId int    `json:"userId"`
-	Token  string `json:"token"`
+	Token string `json:"token"`
 }
 
 // MakeUserLoginHandler - login handler factory
-func MakeUserLoginHandler(s UserService) fiber.Handler {
+func MakeUserLoginHandler(s UserService, j token.JwtService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var payload loginInput
 		if err := c.BodyParser(&payload); err != nil {
@@ -84,9 +84,19 @@ func MakeUserLoginHandler(s UserService) fiber.Handler {
 		}
 
 		log.Debugf("user %s logged in. id: %d", payload.Email, userId)
+
+		c.Cookie(&fiber.Cookie{
+			Name:     "token",
+			Value:    token,
+			Path:     "/",
+			MaxAge:   int(j.TTL().Seconds()),
+			Secure:   false,
+			HTTPOnly: true,
+			Domain:   "localhost",
+		})
+
 		return c.JSON(&loginOutput{
-			UserId: userId,
-			Token:  token,
+			Token: token,
 		})
 	}
 }

@@ -45,7 +45,7 @@ func NewWebServer(config *config.Config) WebServer {
 	{
 		repository := users.NewRepository(db)
 		service := users.NewService(repository, jwtService)
-		users.RegisterRoutes(api, authMiddleware, service)
+		users.RegisterRoutes(api, authMiddleware, service, jwtService)
 	}
 
 	// /api/posts
