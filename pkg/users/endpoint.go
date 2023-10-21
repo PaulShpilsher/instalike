@@ -2,7 +2,7 @@ package users
 
 import (
 	"encoding/json"
-	"strings"
+	"errors"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -37,8 +37,8 @@ func MakeUserRegisterHandler(s UserService) fiber.Handler {
 		userId, err := s.Register(payload.Email, payload.Password)
 		if err != nil {
 			log.Error(err)
-			if strings.Contains(err.Error(), "user already exists") {
-				return c.Status(fiber.StatusConflict).JSON(utils.NewErrorOutput("user already exists"))
+			if errors.Is(err, utils.ErrAlreadyExists) {
+				return c.SendStatus(fiber.StatusConflict)
 			} else {
 				return c.SendStatus(fiber.StatusInternalServerError)
 			}

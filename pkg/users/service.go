@@ -1,10 +1,10 @@
 package users
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/PaulShpilsher/instalike/pkg/token"
+	"github.com/PaulShpilsher/instalike/pkg/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,7 +27,7 @@ func (s *service) Register(email string, password string) (int, error) {
 		return 0, err
 	}
 	if userExists {
-		return 0, fmt.Errorf("user already exists")
+		return 0, utils.ErrAlreadyExists
 	}
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
