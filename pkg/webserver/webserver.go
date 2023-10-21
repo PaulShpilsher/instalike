@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/PaulShpilsher/instalike/database"
 	"github.com/PaulShpilsher/instalike/pkg/config"
@@ -54,7 +55,7 @@ func (s WebServer) Start() {
 
 	go func() {
 		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt) // Catch OS signals.
+		signal.Notify(sigint, syscall.SIGINT, syscall.SIGTERM)
 		<-sigint
 
 		// Received an interrupt signal, shutdown.
@@ -75,7 +76,7 @@ func (s WebServer) Start() {
 
 	// Run server.
 	if err := s.app.Listen(s.serverUrl); err != nil {
-		log.Fatalf("server failed to start. err : %w", err)
+		log.Fatalf("server failed to start. err : %v", err)
 	}
 
 	<-idleConnsClosed
