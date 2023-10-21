@@ -56,7 +56,7 @@ func (r *repository) GetPosts() ([]Post, error) {
 func (r *repository) GetPost(postId int) (Post, error) {
 
 	sql := `
-		SELECT	id,user_id, contents, like_count, created_at, updated_at
+		SELECT	id, user_id, contents, like_count, created_at, updated_at
 		FROM	posts
 		WHERE	id = $1
 			AND	deleted IS FALSE

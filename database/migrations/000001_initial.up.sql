@@ -19,6 +19,6 @@ CREATE TABLE IF NOT EXISTS posts (
 	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX posts_user_id_created_at ON posts(user_id, created_at) WHERE deleted = FALSE;
+CREATE INDEX posts_created_at_idx ON posts(created_at DESC, id) WHERE deleted = FALSE;
 
 COMMIT;
