@@ -17,6 +17,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type WebServer struct {
@@ -30,9 +31,10 @@ func NewWebServer(config *config.Config) WebServer {
 	db := database.NewDbConnection(&config.Database)
 
 	jwtService := token.NewJwtService(&config.Server)
+	authMiddleware := middleware.GetAuthMiddleware(jwtService)
 
 	app := fiber.New()
-	authMiddleware := middleware.GetAuthMiddleware(jwtService)
+	app.Use(cors.New())
 
 	api := fiber.New()
 
