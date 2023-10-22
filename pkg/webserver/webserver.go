@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/PaulShpilsher/instalike/pkg/attachments"
 	"github.com/PaulShpilsher/instalike/pkg/config"
 	"github.com/PaulShpilsher/instalike/pkg/database"
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
@@ -55,6 +56,16 @@ func NewWebServer(config *config.Config) WebServer {
 		attachmentRepository := posts.NewAttachmentRepository(db)
 		postsService := posts.NewPostsService(postsRepository, attachmentRepository)
 		posts.RegisterRoutes(api, authMiddleware, postsService)
+	}
+
+	filer := fiber.New()
+	app.Mount("/filer", filer)
+
+	// /filer/attachments
+	{
+		attachmentsRepository := attachments.NewAttachmentRepository(db)
+		attachmentsService := attachments.NewAttachmentService(attachmentsRepository)
+		attachments.RegisterRoutes(filer, authMiddleware, attachmentsService)
 	}
 
 	return WebServer{
