@@ -5,14 +5,14 @@ cert:
 
 .PHONY: build
 build:
-	go build -o bin/ ./cmd/webservice
-	cp ./cmd/webservice/.env bin/
-	cp -r ./cmd/webservice/keys/ bin/
+	go build -o bin/ ./...
+	cp ./.env bin/
+	cp -r ./keys/ bin/
 
 build-prod:
 	go build -ldflags "-s -w" -o bin/ ./cmd/webservice
-	cp ./cmd/webservice/.env bin/
-	cp -r ./cmd/webservice/keys/ bin/
+	cp ./.env bin/
+	cp -r ./keys/ bin/
 
 
 .PHONY: postgres

@@ -39,8 +39,8 @@ func NewWebServer(config *config.Config) WebServer {
 	api := fiber.New()
 
 	app.Static(
-		"/static",      // mount address
-		"../../public", // path to the file folder
+		"/static",  // mount address
+		"./public", // path to the file folder
 	)
 
 	app.Mount("/api", api)
