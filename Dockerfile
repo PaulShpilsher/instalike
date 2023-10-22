@@ -28,7 +28,7 @@ WORKDIR /app
 
 # Copy keys and .env
 COPY .env.docker ./.env
-COPY keys/ ./
+COPY keys ./keys
 # Copy our static executable.
 COPY --from=builder /tmp/instalike /app
 
