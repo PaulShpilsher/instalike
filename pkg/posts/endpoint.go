@@ -53,18 +53,20 @@ type postOutput struct {
 	Created   time.Time `json:"created"`
 	IsUpdated bool      `json:"isUpdated"`
 
-	UserId    int    `json:"userId"`
-	Contents  string `json:"contents"`
-	LikeCount int    `json:"likeCount"`
+	Author        string  `json:"author"`
+	Body          string  `json:"body"`
+	LikeCount     int     `json:"likeCount"`
+	AttachmentIds []int64 `json:"attachmentIds"`
 }
 
 func makePostOutput(post Post) postOutput {
 	return postOutput{
-		Id:        post.Id,
-		Created:   post.Created,
-		IsUpdated: post.Created != post.Updated,
-		Contents:  post.Contents,
-		LikeCount: post.LikeCount,
+		Id:            post.Id,
+		Created:       post.Created,
+		IsUpdated:     post.IsUpdated,
+		Body:          post.Body,
+		LikeCount:     post.LikeCount,
+		AttachmentIds: utils.ParseStringToInt64Array(post.AttachmentIds),
 	}
 }
 

@@ -8,17 +8,17 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type repository struct {
+type postsRepository struct {
 	*sqlx.DB
 }
 
-func NewRepository(db *sqlx.DB) *repository {
-	return &repository{
+func NewPostsRepository(db *sqlx.DB) *postsRepository {
+	return &postsRepository{
 		DB: db,
 	}
 }
 
-func (r *repository) CreatePost(userId int, contents string) (Post, error) {
+func (r *postsRepository) CreatePost(userId int, contents string) (Post, error) {
 
 	sql := `
 		INSERT INTO posts (user_id, contents)
@@ -35,12 +35,11 @@ func (r *repository) CreatePost(userId int, contents string) (Post, error) {
 	return post, nil
 }
 
-func (r *repository) GetPosts() ([]Post, error) {
+func (r *postsRepository) GetPosts() ([]Post, error) {
 
 	sql := `
-		SELECT id, user_id, contents, like_count, created_at, updated_at
-		FROM posts
-		WHERE deleted IS FALSE
+		SELECT	id, created_at, updated_at, author, body, like_count, updated, attachment_ids
+		FROM posts_view
 		ORDER BY created_at DESC
 		`
 
@@ -53,14 +52,13 @@ func (r *repository) GetPosts() ([]Post, error) {
 	return posts, nil
 }
 
-func (r *repository) GetPost(postId int) (Post, error) {
+func (r *postsRepository) GetPost(postId int) (Post, error) {
 
 	sql := `
-		SELECT	id, user_id, contents, like_count, created_at, updated_at
-		FROM	posts
+		SELECT	id, created_at, updated_at, author, body, like_count, updated, attachment_ids
+		FROM	posts_view
 		WHERE	id = $1
-			AND	deleted IS FALSE
-		LIMIT 1
+		LIMIT	1
 	`
 	post := Post{}
 	if err := r.DB.Get(&post, sql, postId); err != nil {
@@ -74,13 +72,14 @@ func (r *repository) GetPost(postId int) (Post, error) {
 	return post, nil
 }
 
-func (r *repository) GetAuthor(postId int) (int, error) {
+func (r *postsRepository) GetAuthor(postId int) (int, error) {
 
 	sql := `
 		SELECT	user_id
 		FROM	posts
-		WHERE	id = $1 AND	deleted IS FALSE
-		LIMIT 1
+		WHERE	id = $1
+		AND		deleted IS FALSE
+		LIMIT	1
 	`
 	var authorId int
 	if err := r.DB.Get(&authorId, sql, postId); err != nil {
@@ -94,7 +93,7 @@ func (r *repository) GetAuthor(postId int) (int, error) {
 	return authorId, nil
 }
 
-func (r *repository) DeletePost(postId int) error {
+func (r *postsRepository) DeletePost(postId int) error {
 
 	// we dont delete actual data from the database
 	// instead we just set the deleted flag to true
@@ -113,7 +112,7 @@ func (r *repository) DeletePost(postId int) error {
 	return nil
 }
 
-func (r *repository) UpdatePost(postId int, contents string) error {
+func (r *postsRepository) UpdatePost(postId int, contents string) error {
 	sql := `
 		UPDATE	posts 
 		SET		contents = $2,
@@ -125,22 +124,6 @@ func (r *repository) UpdatePost(postId int, contents string) error {
 		return err
 	} else if rows, _ := result.RowsAffected(); rows == 0 {
 		return utils.ErrNotFound
-	}
-
-	return nil
-}
-
-func (r *repository) AttachFileToPost(postId int, contentType string, binary []byte) error {
-
-	sql := `
-		INSERT INTO post_attachments (post_id, content_type, attachment_size, attachment_data) 
-		VALUES($1, $2, $3, $4)
-		RETURNING id;
-	`
-	var attachmentId int64
-	if err := r.DB.Get(&attachmentId, sql, postId, contentType, len(binary), binary); err != nil {
-		log.Printf("[DB ERROR]: %v", err)
-		return err
 	}
 
 	return nil

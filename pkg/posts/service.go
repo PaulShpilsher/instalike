@@ -7,27 +7,29 @@ import (
 )
 
 type service struct {
-	repo PostsRepository
+	postsRepo      PostsRepository
+	attachmentRepo AttachmentRepository
 }
 
-func NewService(repo PostsRepository) *service {
+func NewService(postsRepo PostsRepository, attachmentRepo AttachmentRepository) *service {
 	return &service{
-		repo: repo,
+		postsRepo:      postsRepo,
+		attachmentRepo: attachmentRepo,
 	}
 }
 
 func (s *service) CreatePost(userId int, contents string) (Post, error) {
-	post, err := s.repo.CreatePost(userId, contents)
+	post, err := s.postsRepo.CreatePost(userId, contents)
 	return post, err
 }
 
 func (s *service) GetPosts() ([]Post, error) {
-	posts, err := s.repo.GetPosts()
+	posts, err := s.postsRepo.GetPosts()
 	return posts, err
 }
 
 func (s *service) GetPost(postId int) (Post, error) {
-	post, err := s.repo.GetPost(postId)
+	post, err := s.postsRepo.GetPost(postId)
 	return post, err
 }
 
@@ -37,7 +39,7 @@ func (s *service) DeletePost(userId int, postId int) error {
 		return err
 	}
 
-	return s.repo.DeletePost(postId)
+	return s.postsRepo.DeletePost(postId)
 }
 
 func (s *service) UpdatePost(userId int, postId int, contents string) error {
@@ -46,7 +48,7 @@ func (s *service) UpdatePost(userId int, postId int, contents string) error {
 		return err
 	}
 
-	return s.repo.UpdatePost(postId, contents)
+	return s.postsRepo.UpdatePost(postId, contents)
 }
 
 func (s *service) AttachFileToPost(userId int, postId int, contentType string, size int, reader io.Reader) error {
@@ -63,14 +65,14 @@ func (s *service) AttachFileToPost(userId int, postId int, contentType string, s
 		return err
 	}
 
-	err = s.repo.AttachFileToPost(postId, contentType, binary)
+	err = s.attachmentRepo.CreatePostAttachment(postId, contentType, binary)
 	return err
 }
 
 // private functions
 
 func (s *service) validatePostAuthor(userId int, postId int) error {
-	authorId, err := s.repo.GetAuthor(postId)
+	authorId, err := s.postsRepo.GetAuthor(postId)
 	if err != nil {
 		return err
 	}

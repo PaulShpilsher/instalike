@@ -20,5 +20,8 @@ type PostsRepository interface {
 	DeletePost(postId int) error
 	GetPosts() ([]Post, error)
 	GetPost(postId int) (Post, error)
-	AttachFileToPost(postId int, contentType string, binary []byte) error
+}
+
+type AttachmentRepository interface {
+	CreatePostAttachment(postId int, contentType string, binary []byte) error
 }
