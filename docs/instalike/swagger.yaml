@@ -378,6 +378,36 @@ paths:
       summary: User register
       tags:
       - auth
+  /media/attachments/{attachmentId}:
+    get:
+      description: downloads multimedia attached to a post
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Attachment ID
+        in: path
+        name: attachmentId
+        required: true
+        type: integer
+      produces:
+      - '*/*'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+      security:
+      - Bearer: []
+      summary: Downloads multimedia attached to a post
+      tags:
+      - media
 schemes:
 - http
 securityDefinitions:

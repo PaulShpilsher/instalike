@@ -1,7 +1,6 @@
 package media
 
-// AttachmentsService interface declares users business logic
-type AttachmentsService interface {
+type MediaService interface {
 	GetAttachment(attachmentId int) (Attachment, error)
 }
 
