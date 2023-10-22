@@ -1,7 +1,11 @@
 .PHONY: cert
 cert:
-	openssl genrsa -out rsa 4096
-	openssl rsa -in rsa -pubout -out rsa.pub
+	openssl genrsa -out ./keys/rsa 4096
+	openssl rsa -in ./keys/rsa -pubout -out ./keys/rsa.pub
+
+.PHONY: swag
+swag:
+	swag init -g ./main.go --output docs/instalike
 
 .PHONY: build
 build:

@@ -18,6 +18,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+
+	_ "github.com/PaulShpilsher/instalike/docs/instalike"
+	swagger "github.com/arsmn/fiber-swagger/v2"
 )
 
 type WebServer struct {
@@ -34,7 +37,13 @@ func NewWebServer(config *config.Config) WebServer {
 	authMiddleware := middleware.GetAuthMiddleware(jwtService)
 
 	app := fiber.New()
-	app.Use(cors.New())
+	app.Get("/swagger/*", swagger.HandlerDefault)
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:3000",
+		AllowHeaders:     "Origin, Content-Type, Accept",
+		AllowMethods:     "GET, POST, PUT, DELETE",
+		AllowCredentials: true,
+	}))
 
 	api := fiber.New()
 

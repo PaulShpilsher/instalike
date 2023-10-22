@@ -11,6 +11,8 @@ go get github.com/google/uuid
 		app.Use(logger.New())
 
 
+go install github.com/swaggo/swag/cmd/swag@latest
+
 docker run \
   -p 9000:9000 \
   -p 9001:9001 \

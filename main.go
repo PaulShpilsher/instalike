@@ -10,12 +10,12 @@ import (
 // @description This is a instagram-like server (instalike).
 // @termsOfService http://swagger.io/terms/
 
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-
 // @host localhost:3000
 // @BasePath /
 // @schemes http
+// @securityDefinitions.apikey bearerAuth
+// @in header
+// @name Authorization
 func main() {
 
 	config := config.LoadConfig()
