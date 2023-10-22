@@ -37,9 +37,9 @@ func NewWebServer(config *config.Config) WebServer {
 	authMiddleware := middleware.GetAuthMiddleware(jwtService)
 
 	app := fiber.New()
-	app.Get("/swagger/*", swagger.HandlerDefault)
+
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "*", // TODO: make it configurable.  like "http://localhost:3000",
+		AllowOrigins:     config.Server.CorsAllowedOrigins,
 		AllowHeaders:     "Origin, Content-Type, Accept",
 		AllowMethods:     "GET, POST, PUT, DELETE",
 		AllowCredentials: true,
@@ -50,6 +50,9 @@ func NewWebServer(config *config.Config) WebServer {
 		"./public", // path to the file folder
 	)
 
+	app.Get("/swagger/*", swagger.HandlerDefault)
+
+	// api
 	apiRoute := fiber.New()
 	app.Mount("/api", apiRoute)
 
@@ -68,10 +71,9 @@ func NewWebServer(config *config.Config) WebServer {
 		posts.RegisterRoutes(apiRoute, authMiddleware, postsService)
 	}
 
+	// /media
 	mediaRoute := fiber.New()
 	app.Mount("/media", mediaRoute)
-
-	// /media
 	{
 		attachmentsRepository := media.NewAttachmentRepository(db)
 		mediaService := media.NewMediaService(attachmentsRepository)

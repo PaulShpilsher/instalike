@@ -19,6 +19,7 @@ import (
 func main() {
 
 	config := config.LoadConfig()
+
 	server := webserver.NewWebServer(&config)
 	server.Start()
 }
