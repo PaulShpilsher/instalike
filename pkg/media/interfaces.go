@@ -1,4 +1,4 @@
-package attachments
+package media
 
 // AttachmentsService interface declares users business logic
 type AttachmentsService interface {

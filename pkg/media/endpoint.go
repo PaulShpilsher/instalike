@@ -1,4 +1,4 @@
-package attachments
+package media
 
 import (
 	"bytes"

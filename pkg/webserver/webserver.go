@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/PaulShpilsher/instalike/pkg/attachments"
 	"github.com/PaulShpilsher/instalike/pkg/config"
 	"github.com/PaulShpilsher/instalike/pkg/database"
+	"github.com/PaulShpilsher/instalike/pkg/media"
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
 	"github.com/PaulShpilsher/instalike/pkg/posts"
 	"github.com/PaulShpilsher/instalike/pkg/token"
@@ -39,26 +39,25 @@ func NewWebServer(config *config.Config) WebServer {
 	app := fiber.New()
 	app.Get("/swagger/*", swagger.HandlerDefault)
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000",
+		AllowOrigins:     "*", // TODO: make it configurable.  like "http://localhost:3000",
 		AllowHeaders:     "Origin, Content-Type, Accept",
 		AllowMethods:     "GET, POST, PUT, DELETE",
 		AllowCredentials: true,
 	}))
-
-	api := fiber.New()
 
 	app.Static(
 		"/static",  // mount address
 		"./public", // path to the file folder
 	)
 
-	app.Mount("/api", api)
+	apiRoute := fiber.New()
+	app.Mount("/api", apiRoute)
 
 	// /api/users
 	{
 		usersRepository := users.NewRepository(db)
 		usersService := users.NewService(usersRepository, jwtService)
-		users.RegisterRoutes(api, &config.Server, authMiddleware, usersService)
+		users.RegisterRoutes(apiRoute, &config.Server, authMiddleware, usersService)
 	}
 
 	// /api/posts
@@ -66,17 +65,17 @@ func NewWebServer(config *config.Config) WebServer {
 		postsRepository := posts.NewPostsRepository(db)
 		attachmentRepository := posts.NewAttachmentRepository(db)
 		postsService := posts.NewPostsService(postsRepository, attachmentRepository)
-		posts.RegisterRoutes(api, authMiddleware, postsService)
+		posts.RegisterRoutes(apiRoute, authMiddleware, postsService)
 	}
 
-	filer := fiber.New()
-	app.Mount("/filer", filer)
+	mediaRoute := fiber.New()
+	app.Mount("/media", mediaRoute)
 
-	// /filer/attachments
+	// /media
 	{
-		attachmentsRepository := attachments.NewAttachmentRepository(db)
-		attachmentsService := attachments.NewAttachmentService(attachmentsRepository)
-		attachments.RegisterRoutes(filer, authMiddleware, attachmentsService)
+		attachmentsRepository := media.NewAttachmentRepository(db)
+		mediaService := media.NewMediaService(attachmentsRepository)
+		media.RegisterRoutes(mediaRoute, authMiddleware, mediaService)
 	}
 
 	return WebServer{

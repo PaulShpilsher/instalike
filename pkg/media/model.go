@@ -1,4 +1,4 @@
-package attachments
+package media
 
 type Attachment struct {
 	ContentType string `db:"content_type" json:"contentType"`
