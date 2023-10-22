@@ -1,5 +1,43 @@
 basePath: /
 definitions:
+  posts.createPostInput:
+    properties:
+      body:
+        type: string
+    required:
+    - body
+    type: object
+  posts.createPostOutput:
+    properties:
+      id:
+        type: integer
+    type: object
+  posts.getPostOutput:
+    properties:
+      attachmentIds:
+        items:
+          type: integer
+        type: array
+      author:
+        type: string
+      body:
+        type: string
+      created:
+        type: string
+      id:
+        type: integer
+      isUpdated:
+        type: boolean
+      likeCount:
+        type: integer
+    type: object
+  posts.updatePostInput:
+    properties:
+      body:
+        type: string
+    required:
+    - body
+    type: object
   users.currentUserOutput:
     properties:
       created:
@@ -63,6 +101,204 @@ info:
   title: InstaLike API
   version: "2.0"
 paths:
+  /api/posts:
+    get:
+      description: gets all posts
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/posts.getPostOutput'
+            type: array
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+      security:
+      - Bearer: []
+      summary: Gets all posts
+      tags:
+      - posts
+    post:
+      consumes:
+      - application/json
+      description: creates a new post
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: The input post struct
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/posts.createPostInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/posts.createPostOutput'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+      security:
+      - Bearer: []
+      summary: Create post
+      tags:
+      - posts
+  /api/posts/{postId}:
+    delete:
+      description: deletes post by post id
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Post ID
+        in: path
+        name: postId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+      security:
+      - Bearer: []
+      summary: Deletes post
+      tags:
+      - posts
+    get:
+      description: gets a post by post id
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Post ID
+        in: path
+        name: postId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/posts.getPostOutput'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+      security:
+      - Bearer: []
+      summary: Gets a post by post id
+      tags:
+      - posts
+    put:
+      consumes:
+      - application/json
+      description: updates post
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Post ID
+        in: path
+        name: postId
+        required: true
+        type: integer
+      - description: The update post struct
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/posts.updatePostInput'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+      security:
+      - Bearer: []
+      summary: Updates post
+      tags:
+      - posts
+  /api/posts/{postId}/attachment:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Attaches multimedia file to post
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Post ID
+        in: path
+        name: postId
+        required: true
+        type: integer
+      - description: The input post struct
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "413":
+          description: Request Entity Too Large
+        "422":
+          description: Unprocessable Entity
+      security:
+      - Bearer: []
+      summary: Attaches multimedia file to post
+      tags:
+      - posts
   /api/users/login:
     post:
       consumes:
