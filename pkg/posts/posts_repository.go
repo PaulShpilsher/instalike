@@ -18,21 +18,21 @@ func NewPostsRepository(db *sqlx.DB) *postsRepository {
 	}
 }
 
-func (r *postsRepository) CreatePost(userId int, contents string) (Post, error) {
+func (r *postsRepository) CreatePost(userId int, body string) (int, error) {
 
 	sql := `
-		INSERT INTO posts (user_id, contents)
+		INSERT INTO posts (user_id, body)
 		VALUES($1, $2)
-		RETURNING id, user_id, contents, like_count, created_at, updated_at
+		RETURNING id
 	`
 
-	post := Post{}
-	if err := r.DB.Get(&post, sql, userId, contents); err != nil {
+	var postId int
+	if err := r.DB.Get(&postId, sql, userId, body); err != nil {
 		log.Printf("[DB ERROR]: %v", err)
-		return Post{}, err
+		return 0, err
 	}
 
-	return post, nil
+	return postId, nil
 }
 
 func (r *postsRepository) GetPosts() ([]Post, error) {
@@ -112,14 +112,14 @@ func (r *postsRepository) DeletePost(postId int) error {
 	return nil
 }
 
-func (r *postsRepository) UpdatePost(postId int, contents string) error {
+func (r *postsRepository) UpdatePost(postId int, body string) error {
 	sql := `
 		UPDATE	posts 
-		SET		contents = $2,
+		SET		body = $2,
 				updated_at = CURRENT_TIMESTAMP
 		WHERE	id = $1 AND deleted IS FALSE
 	`
-	if result, err := r.DB.Exec(sql, postId, contents); err != nil {
+	if result, err := r.DB.Exec(sql, postId, body); err != nil {
 		log.Printf("[DB ERROR]: %v", err)
 		return err
 	} else if rows, _ := result.RowsAffected(); rows == 0 {

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"regexp"
 	"strconv"
-	"time"
 
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
 	"github.com/PaulShpilsher/instalike/pkg/utils"
@@ -16,15 +15,11 @@ import (
 /// Create post
 ///
 
-type createPostInput struct {
-	Contents string `json:"contents" validate:"required"`
-}
-
 // MakeCreatePostHandler - create post handler factory
 func MakeCreatePostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
-		var payload createPostInput
+		var payload CreatePostInput
 		if err := c.BodyParser(&payload); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
 		}
@@ -33,42 +28,21 @@ func MakeCreatePostHandler(s PostsService) fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(utils.NewValidationErrorOutput(errors))
 		}
 
-		post, err := s.CreatePost(middleware.GetAuthenicatedUserId(c), payload.Contents)
+		postId, err := s.CreatePost(middleware.GetAuthenicatedUserId(c), payload.Body)
 		if err != nil {
 			log.Error(err)
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
-		log.Debugf("post created:  %v", post)
-		return c.SendStatus(fiber.StatusCreated)
+		return c.Status(fiber.StatusCreated).JSON(CreatePostOutput{
+			Id: postId,
+		})
 	}
 }
 
 ///
 /// get posts
 ///
-
-type postOutput struct {
-	Id        int       `json:"id"`
-	Created   time.Time `json:"created"`
-	IsUpdated bool      `json:"isUpdated"`
-
-	Author        string  `json:"author"`
-	Body          string  `json:"body"`
-	LikeCount     int     `json:"likeCount"`
-	AttachmentIds []int64 `json:"attachmentIds"`
-}
-
-func makePostOutput(post Post) postOutput {
-	return postOutput{
-		Id:            post.Id,
-		Created:       post.Created,
-		IsUpdated:     post.IsUpdated,
-		Body:          post.Body,
-		LikeCount:     post.LikeCount,
-		AttachmentIds: utils.ParseStringToInt64Array(post.AttachmentIds),
-	}
-}
 
 // MakeGetPostsHandler - get posts handler factory
 func MakeGetPostsHandler(s PostsService) fiber.Handler {
@@ -79,7 +53,7 @@ func MakeGetPostsHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
-		return c.JSON(utils.Map(posts, makePostOutput))
+		return c.JSON(utils.Map(posts, MakeGetPostOutput))
 	}
 }
 
@@ -106,7 +80,7 @@ func MakeGetPostHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
-		return c.JSON(makePostOutput(post))
+		return c.JSON(MakeGetPostOutput(post))
 	}
 }
 
@@ -145,10 +119,6 @@ func MakeDeletePostHandler(s PostsService) fiber.Handler {
 /// update post
 ///
 
-type updatePostInput struct {
-	Contents string `json:"contents" validate:"required"`
-}
-
 // MakeUpdatePostHandler - update post by id handler factory
 func MakeUpdatePostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -158,7 +128,7 @@ func MakeUpdatePostHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		var payload updatePostInput
+		var payload UpdatePostInput
 		if err := c.BodyParser(&payload); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
 		}
@@ -167,7 +137,7 @@ func MakeUpdatePostHandler(s PostsService) fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
 		}
 
-		err = s.UpdatePost(middleware.GetAuthenicatedUserId(c), postId, payload.Contents)
+		err = s.UpdatePost(middleware.GetAuthenicatedUserId(c), postId, payload.Body)
 		if err != nil {
 			if errors.Is(err, utils.ErrNotFound) {
 				return c.SendStatus(fiber.StatusNotFound)

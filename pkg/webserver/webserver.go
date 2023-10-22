@@ -1,6 +1,7 @@
 package webserver
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -43,23 +44,23 @@ func NewWebServer(config *config.Config) WebServer {
 
 	// /api/users
 	{
-		repository := users.NewRepository(db)
-		service := users.NewService(repository, jwtService)
-		users.RegisterRoutes(api, &config.Server, authMiddleware, service)
+		usersRepository := users.NewRepository(db)
+		usersService := users.NewService(usersRepository, jwtService)
+		users.RegisterRoutes(api, &config.Server, authMiddleware, usersService)
 	}
 
 	// /api/posts
 	{
 		postsRepository := posts.NewPostsRepository(db)
 		attachmentRepository := posts.NewAttachmentRepository(db)
-		service := posts.NewService(postsRepository, attachmentRepository)
-		posts.RegisterRoutes(api, authMiddleware, service)
+		postsService := posts.NewPostsService(postsRepository, attachmentRepository)
+		posts.RegisterRoutes(api, authMiddleware, postsService)
 	}
 
 	return WebServer{
 		app:           app,
 		db:            db,
-		serverAddress: config.Server.ServerAddress,
+		serverAddress: fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port),
 	}
 }
 

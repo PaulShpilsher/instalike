@@ -6,34 +6,34 @@ import (
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
-type service struct {
+type postsService struct {
 	postsRepo      PostsRepository
 	attachmentRepo AttachmentRepository
 }
 
-func NewService(postsRepo PostsRepository, attachmentRepo AttachmentRepository) *service {
-	return &service{
+func NewPostsService(postsRepo PostsRepository, attachmentRepo AttachmentRepository) *postsService {
+	return &postsService{
 		postsRepo:      postsRepo,
 		attachmentRepo: attachmentRepo,
 	}
 }
 
-func (s *service) CreatePost(userId int, contents string) (Post, error) {
-	post, err := s.postsRepo.CreatePost(userId, contents)
-	return post, err
+func (s *postsService) CreatePost(userId int, body string) (int, error) {
+	postId, err := s.postsRepo.CreatePost(userId, body)
+	return postId, err
 }
 
-func (s *service) GetPosts() ([]Post, error) {
+func (s *postsService) GetPosts() ([]Post, error) {
 	posts, err := s.postsRepo.GetPosts()
 	return posts, err
 }
 
-func (s *service) GetPost(postId int) (Post, error) {
+func (s *postsService) GetPost(postId int) (Post, error) {
 	post, err := s.postsRepo.GetPost(postId)
 	return post, err
 }
 
-func (s *service) DeletePost(userId int, postId int) error {
+func (s *postsService) DeletePost(userId int, postId int) error {
 
 	if err := s.validatePostAuthor(userId, postId); err != nil {
 		return err
@@ -42,16 +42,16 @@ func (s *service) DeletePost(userId int, postId int) error {
 	return s.postsRepo.DeletePost(postId)
 }
 
-func (s *service) UpdatePost(userId int, postId int, contents string) error {
+func (s *postsService) UpdatePost(userId int, postId int, body string) error {
 
 	if err := s.validatePostAuthor(userId, postId); err != nil {
 		return err
 	}
 
-	return s.postsRepo.UpdatePost(postId, contents)
+	return s.postsRepo.UpdatePost(postId, body)
 }
 
-func (s *service) AttachFileToPost(userId int, postId int, contentType string, size int, reader io.Reader) error {
+func (s *postsService) AttachFileToPost(userId int, postId int, contentType string, size int, reader io.Reader) error {
 
 	err := s.validatePostAuthor(userId, postId)
 	if err != nil {
@@ -71,7 +71,7 @@ func (s *service) AttachFileToPost(userId int, postId int, contentType string, s
 
 // private functions
 
-func (s *service) validatePostAuthor(userId int, postId int) error {
+func (s *postsService) validatePostAuthor(userId int, postId int) error {
 	authorId, err := s.postsRepo.GetAuthor(postId)
 	if err != nil {
 		return err

@@ -10,7 +10,8 @@ import (
 )
 
 type ServerConfig struct {
-	ServerAddress          string
+	Host                   string
+	Port                   int
 	Domain                 string
 	TokenExpirationMinutes int
 	PrivateKeyFile         string
@@ -35,7 +36,8 @@ func LoadConfig() Config {
 	return Config{
 
 		Server: ServerConfig{
-			ServerAddress:          getString("SERVER_ADDRESS"),
+			Host:                   getString("HOST"),
+			Port:                   getInt("PORT"),
 			Domain:                 getString("DOMAIN"),
 			TokenExpirationMinutes: getInt("TOKEN_EXPIRATION_MINUTES"),
 			PrivateKeyFile:         getString("TOKEN_PRIVATE_KEY_FILE"),
