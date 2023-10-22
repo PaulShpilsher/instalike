@@ -7,12 +7,28 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - progresDB:/data/postgres
+      - postgresDB:/data/postgres
       - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
     environment:
       POSTGRES_USER: pusr
       POSTGRES_PASSWORD: pusr_secret
       POSTGRES_DB: instalike-data
+
+app:
+    container_name: installike
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    external_links:
+      - postgres
+    depends_on:
+        postgres:
+          condition: service_started
+    volumes:
+      - ./:/app      
 
 volumes:
   progresDB:
