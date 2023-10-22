@@ -10,10 +10,8 @@ import (
 )
 
 type ServerConfig struct {
-	Url string
-}
-
-type JwtConfig struct {
+	ServerAddress          string
+	Domain                 string
 	TokenExpirationMinutes int
 	PrivateKeyFile         string
 	PublicKeyFile          string
@@ -28,7 +26,6 @@ type DatabaseConfig struct {
 
 type Config struct {
 	Server   ServerConfig
-	Jwt      JwtConfig
 	Database DatabaseConfig
 }
 
@@ -38,10 +35,8 @@ func LoadConfig() Config {
 	return Config{
 
 		Server: ServerConfig{
-			Url: getString("SERVER_URL"),
-		},
-
-		Jwt: JwtConfig{
+			ServerAddress:          getString("SERVER_ADDRESS"),
+			Domain:                 getString("DOMAIN"),
 			TokenExpirationMinutes: getInt("TOKEN_EXPIRATION_MINUTES"),
 			PrivateKeyFile:         getString("TOKEN_PRIVATE_KEY_FILE"),
 			PublicKeyFile:          getString("TOKEN_PUBLIC_KEY_FILE"),

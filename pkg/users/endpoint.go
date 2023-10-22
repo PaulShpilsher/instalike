@@ -8,8 +8,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 
+	"github.com/PaulShpilsher/instalike/pkg/config"
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
-	"github.com/PaulShpilsher/instalike/pkg/token"
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
@@ -64,7 +64,7 @@ type loginOutput struct {
 }
 
 // MakeUserLoginHandler - login handler factory
-func MakeUserLoginHandler(s UserService, j token.JwtService) fiber.Handler {
+func MakeUserLoginHandler(config *config.ServerConfig, s UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var payload loginInput
 		if err := c.BodyParser(&payload); err != nil {
@@ -89,10 +89,10 @@ func MakeUserLoginHandler(s UserService, j token.JwtService) fiber.Handler {
 			Name:     "token",
 			Value:    token,
 			Path:     "/",
-			MaxAge:   int(j.TTL().Seconds()),
+			MaxAge:   int((time.Duration(config.TokenExpirationMinutes) * time.Minute).Seconds()),
 			Secure:   false,
 			HTTPOnly: true,
-			Domain:   "localhost",
+			Domain:   config.Domain,
 		})
 
 		return c.JSON(&loginOutput{

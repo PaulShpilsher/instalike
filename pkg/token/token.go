@@ -17,7 +17,7 @@ type service struct {
 	PublicKey  *rsa.PublicKey
 }
 
-func NewJwtService(config *config.JwtConfig) *service {
+func NewJwtService(config *config.ServerConfig) *service {
 	return &service{
 		Ttl:        time.Duration(config.TokenExpirationMinutes) * time.Minute,
 		PrivateKey: getPrivateKey(config.PrivateKeyFile),
