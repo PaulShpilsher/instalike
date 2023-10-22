@@ -1,19 +1,36 @@
-FROM golang:1.20-alpine AS build-env
+#################
+# build image
+#################
+FROM golang:1.21.3-alpine AS builder
+
+# Install git.
+# Git is required for fetching the dependencies.
+RUN apk update && apk add --no-cache git
 
 WORKDIR /usr/src/app
 
-# pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
+# Pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
+
+# Build
 COPY . .
-RUN go build -v -o /tmp ./...
+RUN GOOS=linux GOARCH=amd64 go build -ldflags "-s -w -extldflags=-static" -o /tmp ./...
 
+
+#################
 # Runtime image
-
-FROM golang:1.20-alpine
+#################
+FROM scratch
 
 WORKDIR /app
-COPY --from=build-env /tmp/sqzsvc /app
 
-CMD ["/app/sqzsvc"]
+# Copy keys and .env
+COPY .env.docker ./.env
+COPY keys/ ./
+# Copy our static executable.
+COPY --from=builder /tmp/instalike /app
+
+# Run
+ENTRYPOINT ["/app/instalike"]

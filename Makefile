@@ -14,7 +14,7 @@ build:
 	cp -r ./keys/ bin/
 
 build-prod:
-	go build -ldflags "-s -w" -o bin/ ./cmd/webservice
+	CGO_ENABLED=0 GOARCH=amd64 go build -ldflags "-s -w -extldflags=-static" -o bin/ ./...
 	cp ./.env bin/
 	cp -r ./keys/ bin/
 
