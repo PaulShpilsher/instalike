@@ -13,6 +13,7 @@ type ServerConfig struct {
 	Host                   string
 	Port                   int
 	Domain                 string
+	CorsAllowedOrigins     string
 	TokenExpirationMinutes int
 	PrivateKeyFile         string
 	PublicKeyFile          string
@@ -36,9 +37,12 @@ func LoadConfig() Config {
 	return Config{
 
 		Server: ServerConfig{
-			Host:                   getString("HOST"),
-			Port:                   getInt("PORT"),
-			Domain:                 getString("DOMAIN"),
+			Host:   getString("HOST"),
+			Port:   getInt("PORT"),
+			Domain: getString("DOMAIN"),
+
+			CorsAllowedOrigins: getString("CORS_ALLOWED_ORIGINS"),
+
 			TokenExpirationMinutes: getInt("TOKEN_EXPIRATION_MINUTES"),
 			PrivateKeyFile:         getString("TOKEN_PRIVATE_KEY_FILE"),
 			PublicKeyFile:          getString("TOKEN_PUBLIC_KEY_FILE"),

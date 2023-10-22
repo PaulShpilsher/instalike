@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/PaulShpilsher/instalike/pkg/attachments"
 	"github.com/PaulShpilsher/instalike/pkg/config"
 	"github.com/PaulShpilsher/instalike/pkg/database"
+	"github.com/PaulShpilsher/instalike/pkg/media"
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
 	"github.com/PaulShpilsher/instalike/pkg/posts"
 	"github.com/PaulShpilsher/instalike/pkg/token"
@@ -17,6 +17,10 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+
+	_ "github.com/PaulShpilsher/instalike/docs/instalike"
+	swagger "github.com/arsmn/fiber-swagger/v2"
 )
 
 type WebServer struct {
@@ -30,24 +34,33 @@ func NewWebServer(config *config.Config) WebServer {
 	db := database.NewDbConnection(&config.Database)
 
 	jwtService := token.NewJwtService(&config.Server)
-
-	app := fiber.New()
 	authMiddleware := middleware.GetAuthMiddleware(jwtService)
 
-	api := fiber.New()
+	app := fiber.New()
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     config.Server.CorsAllowedOrigins,
+		AllowHeaders:     "Origin, Content-Type, Accept",
+		AllowMethods:     "GET, POST, PUT, DELETE",
+		AllowCredentials: true,
+	}))
 
 	app.Static(
-		"/static",      // mount address
-		"../../public", // path to the file folder
+		"/static",  // mount address
+		"./public", // path to the file folder
 	)
 
-	app.Mount("/api", api)
+	app.Get("/swagger/*", swagger.HandlerDefault)
+
+	// api
+	apiRoute := fiber.New()
+	app.Mount("/api", apiRoute)
 
 	// /api/users
 	{
 		usersRepository := users.NewRepository(db)
 		usersService := users.NewService(usersRepository, jwtService)
-		users.RegisterRoutes(api, &config.Server, authMiddleware, usersService)
+		users.RegisterRoutes(apiRoute, &config.Server, authMiddleware, usersService)
 	}
 
 	// /api/posts
@@ -55,17 +68,16 @@ func NewWebServer(config *config.Config) WebServer {
 		postsRepository := posts.NewPostsRepository(db)
 		attachmentRepository := posts.NewAttachmentRepository(db)
 		postsService := posts.NewPostsService(postsRepository, attachmentRepository)
-		posts.RegisterRoutes(api, authMiddleware, postsService)
+		posts.RegisterRoutes(apiRoute, authMiddleware, postsService)
 	}
 
-	filer := fiber.New()
-	app.Mount("/filer", filer)
-
-	// /filer/attachments
+	// /media
+	mediaRoute := fiber.New()
+	app.Mount("/media", mediaRoute)
 	{
-		attachmentsRepository := attachments.NewAttachmentRepository(db)
-		attachmentsService := attachments.NewAttachmentService(attachmentsRepository)
-		attachments.RegisterRoutes(filer, authMiddleware, attachmentsService)
+		attachmentsRepository := media.NewAttachmentRepository(db)
+		mediaService := media.NewMediaService(attachmentsRepository)
+		media.RegisterRoutes(mediaRoute, authMiddleware, mediaService)
 	}
 
 	return WebServer{

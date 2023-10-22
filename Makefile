@@ -1,18 +1,22 @@
 .PHONY: cert
 cert:
-	openssl genrsa -out rsa 4096
-	openssl rsa -in rsa -pubout -out rsa.pub
+	openssl genrsa -out ./keys/rsa 4096
+	openssl rsa -in ./keys/rsa -pubout -out ./keys/rsa.pub
+
+.PHONY: swag
+swag:
+	swag init -g ./main.go --output docs/instalike
 
 .PHONY: build
 build:
-	go build -o bin/ ./cmd/webservice
-	cp ./cmd/webservice/.env bin/
-	cp -r ./cmd/webservice/keys/ bin/
+	go build -o bin/ ./...
+	cp ./.env bin/
+	cp -r ./keys/ bin/
 
 build-prod:
 	go build -ldflags "-s -w" -o bin/ ./cmd/webservice
-	cp ./cmd/webservice/.env bin/
-	cp -r ./cmd/webservice/keys/ bin/
+	cp ./.env bin/
+	cp -r ./keys/ bin/
 
 
 .PHONY: postgres

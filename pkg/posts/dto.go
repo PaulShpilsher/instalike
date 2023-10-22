@@ -6,19 +6,19 @@ import (
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
-type CreatePostInput struct {
+type createPostInput struct {
 	Body string `json:"body" validate:"required"`
 }
 
-type CreatePostOutput struct {
+type createPostOutput struct {
 	Id int `json:"id"`
 }
 
-type UpdatePostInput struct {
+type updatePostInput struct {
 	Body string `json:"body" validate:"required"`
 }
 
-type GetPostOutput struct {
+type getPostOutput struct {
 	Id            int       `json:"id"`
 	Created       time.Time `json:"created"`
 	IsUpdated     bool      `json:"isUpdated"`
@@ -30,8 +30,8 @@ type GetPostOutput struct {
 
 // factory functions
 
-func MakeGetPostOutput(post Post) GetPostOutput {
-	return GetPostOutput{
+func makeGetPostOutput(post Post) getPostOutput {
+	return getPostOutput{
 		Id:            post.Id,
 		Created:       post.Created,
 		IsUpdated:     post.IsUpdated,

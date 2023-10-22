@@ -13,16 +13,17 @@ import (
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
-///
-/// Sign up
-///
-
-type registerInput struct {
-	Email    string `json:"email" validate:"required"`
-	Password string `json:"password" validate:"required,min=5"`
-}
-
-// MakeUserRegisterHandler - register handler factory
+// Login godoc
+// @Summary User register
+// @Description registers user.
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param data body registerInput true "The input register struct"
+// @Success 201
+// @Failure 400 {object} utils.ErrorOutput
+// @Failure 409
+// @Router /api/users/register [post]
 func MakeUserRegisterHandler(s UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -50,20 +51,17 @@ func MakeUserRegisterHandler(s UserService) fiber.Handler {
 	}
 }
 
-///
-/// Login
-///
-
-type loginInput struct {
-	Email    string `json:"email" validate:"required"`
-	Password string `json:"password" validate:"required"`
-}
-
-type loginOutput struct {
-	Token string `json:"token"`
-}
-
-// MakeUserLoginHandler - login handler factory
+// Login godoc
+// @Summary User login
+// @Description performs user login, returns jwt token and sets http-only cookie.
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param data body loginInput true "The input login struct"
+// @Success 200 {object} loginOutput
+// @Failure 400 {object} utils.ErrorOutput
+// @Failure 401
+// @Router /api/users/login [post]
 func MakeUserLoginHandler(config *config.ServerConfig, s UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var payload loginInput
@@ -101,18 +99,17 @@ func MakeUserLoginHandler(config *config.ServerConfig, s UserService) fiber.Hand
 	}
 }
 
-///
-/// Current user information
-///
-
-type currentUserOutput struct {
-	UserId  int       `json:"userId"`
-	Email   string    `json:"email"`
-	Created time.Time `json:"created"`
-	Updated time.Time `json:"updated"`
-}
-
-// MakeGetCurrentUserHandler - get logged in user information
+// Me godoc
+// @Summary Current user information
+// @Description gets currenly logger in user information
+// @Tags auth
+// @Security Bearer
+// @param Authorization header string true "Authorization"
+// @Produce json
+// @Success 200 {object} currentUserOutput
+// @Failure 401
+// @Failure 404
+// @Router /api/users/me [get]
 func MakeGetCurrentUserHandler(s UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 

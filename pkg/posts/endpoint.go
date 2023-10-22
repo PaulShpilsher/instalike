@@ -11,15 +11,23 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 )
 
-///
-/// Create post
-///
-
-// MakeCreatePostHandler - create post handler factory
+// CreatePost godoc
+// @Summary Create post
+// @Description creates a new post
+// @Tags posts
+// @Security Bearer
+// @param Authorization header string true "Authorization"
+// @Accept json
+// @Produce json
+// @Param data body createPostInput true "The input post struct"
+// @Success 200 {object} createPostOutput
+// @Failure 400
+// @Failure 401
+// @Router /api/posts [post]
 func MakeCreatePostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
-		var payload CreatePostInput
+		var payload createPostInput
 		if err := c.BodyParser(&payload); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
 		}
@@ -34,17 +42,23 @@ func MakeCreatePostHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
-		return c.Status(fiber.StatusCreated).JSON(CreatePostOutput{
+		return c.Status(fiber.StatusCreated).JSON(createPostOutput{
 			Id: postId,
 		})
 	}
 }
 
-///
-/// get posts
-///
-
-// MakeGetPostsHandler - get posts handler factory
+// GetPosts godoc
+// @Summary Gets all posts
+// @Description gets all posts
+// @Tags posts
+// @Security Bearer
+// @param Authorization header string true "Authorization"
+// @Produce json
+// @Success 200 {array} getPostOutput
+// @Failure 400
+// @Failure 401
+// @Router /api/posts [get]
 func MakeGetPostsHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		posts, err := s.GetPosts()
@@ -53,15 +67,23 @@ func MakeGetPostsHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
-		return c.JSON(utils.Map(posts, MakeGetPostOutput))
+		return c.JSON(utils.Map(posts, makeGetPostOutput))
 	}
 }
 
-///
-/// get post
-///
-
-// MakeGetPostHandler - get post by id handler factory
+// GetPost godoc
+// @Summary Gets a post by post id
+// @Description gets a post by post id
+// @Tags posts
+// @Security Bearer
+// @param Authorization header string true "Authorization"
+// @Produce json
+// @Param postId path int true "Post ID"
+// @Success 200 {object} getPostOutput
+// @Failure 400
+// @Failure 401
+// @Failure 404
+// @Router /api/posts/{postId} [get]
 func MakeGetPostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -80,15 +102,23 @@ func MakeGetPostHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
-		return c.JSON(MakeGetPostOutput(post))
+		return c.JSON(makeGetPostOutput(post))
 	}
 }
 
-///
-/// delete post
-///
-
-// MakeDeletePostHandler - delete post by id handler factory
+// DeletePost godoc
+// @Summary Deletes post
+// @Description deletes post by post id
+// @Tags posts
+// @Security Bearer
+// @param Authorization header string true "Authorization"
+// @Param postId path int true "Post ID"
+// @Success 204
+// @Failure 400
+// @Failure 401
+// @Failure 403
+// @Failure 404
+// @Router /api/posts/{postId} [delete]
 func MakeDeletePostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -115,11 +145,21 @@ func MakeDeletePostHandler(s PostsService) fiber.Handler {
 	}
 }
 
-///
-/// update post
-///
-
-// MakeUpdatePostHandler - update post by id handler factory
+// UpdatePost godoc
+// @Summary Updates post
+// @Description updates post
+// @Tags posts
+// @Security Bearer
+// @param Authorization header string true "Authorization"
+// @Accept json
+// @Param postId path int true "Post ID"
+// @Param data body updatePostInput true "The update post struct"
+// @Success 204
+// @Failure 400
+// @Failure 401
+// @Failure 403
+// @Failure 404
+// @Router /api/posts/{postId} [put]
 func MakeUpdatePostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -128,7 +168,7 @@ func MakeUpdatePostHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		var payload UpdatePostInput
+		var payload updatePostInput
 		if err := c.BodyParser(&payload); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
 		}
@@ -155,13 +195,23 @@ func MakeUpdatePostHandler(s PostsService) fiber.Handler {
 	}
 }
 
-///
-/// Upload files
-///
-
-const MaxUploadSize = 1024 * 1024 // 1Mb
-
-// MakeUploadMediaFileToPostHandler - upload multimedia files
+// UploadPostAttachment godoc
+// @Summary Attaches multimedia file to post
+// @Description Attaches multimedia file to post
+// @Tags posts
+// @Security Bearer
+// @param Authorization header string true "Authorization"
+// @Accept mpfd
+// @Param postId path int true "Post ID"
+// @Param file formData file true "The input post struct"
+// @Success 204
+// @Failure 400
+// @Failure 401
+// @Failure 403
+// @Failure 404
+// @Failure 413
+// @Failure 422
+// @Router /api/posts/{postId}/attachment [post]
 func MakeUploadMediaFileToPostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -175,6 +225,8 @@ func MakeUploadMediaFileToPostHandler(s PostsService) fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
 
+		// TODO: put it in config
+		const MaxUploadSize = 1024 * 1024 * 10 // 10Mb
 		if file.Size > MaxUploadSize {
 			return c.SendStatus(fiber.StatusRequestEntityTooLarge)
 		} else if file.Size == 0 {
