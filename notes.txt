@@ -49,3 +49,5 @@ volumes:
 
 
 // @Param        postId   path      int  true  "Account ID"
+
+app.Use(logger.New())
