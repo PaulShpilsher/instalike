@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS posts (
     deleted boolean NOT NULL DEFAULT FALSE
 );
 
-CREATE INDEX posts_created_at_idx ON posts(created_at DESC, id) WHERE deleted = FALSE;
+CREATE INDEX IF NOT EXISTS posts_created_at_idx ON posts(created_at DESC, id) WHERE deleted = FALSE;
 
 
 --  post attachments
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS post_attachments (
     attachment_data BYTEA NOT NULL
 );
 
-CREATE INDEX post_attachments_post_id_created_at_idx ON post_attachments(post_id, created_at);
+CREATE INDEX IF NOT EXISTS post_attachments_post_id_created_at_idx ON post_attachments(post_id, created_at);
 
 -- posts_view 
 CREATE OR REPLACE VIEW posts_view

@@ -51,3 +51,28 @@ volumes:
 // @Param        postId   path      int  true  "Account ID"
 
 app.Use(logger.New())
+
+
+  db:
+        image: postgres
+        networks:
+            new:
+                aliases:
+                    - database
+        environment:
+            POSTGRES_DB: mydbname
+            POSTGRES_USER: mydbuser
+            POSTGRES_PASSWORD: mydbpwd
+        ports:
+            - "5432"
+    migrate:
+        image: migrate/migrate
+        networks:
+            - new
+        volumes:
+            - .:/migrations
+        command: ["-path", "/migrations", "-database",  "postgres://mydbuser:mydbpwd@database:5432/mydbname?sslmode=disable", "up", "3"]
+        links: 
+            - db
+networks:
+      new:

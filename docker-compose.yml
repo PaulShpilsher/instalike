@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   postgres:
     image: postgres:latest
@@ -7,21 +8,11 @@ services:
       - "5432:5432"
     volumes:
       - progresDB:/data/postgres
+      - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
     environment:
       POSTGRES_USER: pusr
       POSTGRES_PASSWORD: pusr_secret
       POSTGRES_DB: instalike-data
-          
-  migrate:
-      image: migrate/migrate
-      restart: on-failure:5 
-      # volumes:
-      #     - .:/migrations
-      command: ["-path", "migrations", "-database",  "postgresql://pusr:pusr_secret@postgres:5432/instalike-data?sslmode=disable", "up"]
-      links: 
-          - postgres
-      depends_on:
-          postgres:
-            condition: service_started
+
 volumes:
   progresDB:

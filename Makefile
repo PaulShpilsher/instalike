@@ -29,14 +29,16 @@ postgres:
 		--name instalike-pg \
 		postgres:latest
 
-.PHONY: migration
-migration:
-	migrate create -ext sql -dir ./database/migrations -seq ${seq}
+# Decided not to use migrations for now
+# uncomment if/when I decide to go back to them
+# .PHONY: migration
+# migration:
+# 	migrate create -ext sql -dir migrations -seq ${seq}
 
-.PHONY: up
-up:
-	migrate -path database/migrations -database "postgresql://pusr:pusr_secret@localhost:5432/instalike-data?sslmode=disable" up
+# .PHONY: up
+# up:
+# 	migrate -path migrations -database "postgresql://pusr:pusr_secret@localhost:5432/instalike-data?sslmode=disable" up
 
-.PHONY: down
-down:
-	migrate -path database/migrations -database "postgresql://pusr:pusr_secret@localhost:5432/instalike-data?sslmode=disable" down 1
+# .PHONY: down
+# down:
+# 	migrate -path migrations -database "postgresql://pusr:pusr_secret@localhost:5432/instalike-data?sslmode=disable" down 1
