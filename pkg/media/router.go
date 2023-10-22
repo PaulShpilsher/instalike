@@ -6,7 +6,7 @@ import (
 
 func RegisterRoutes(mediaRouter fiber.Router, authMiddleware fiber.Handler, mediaService MediaService) {
 
-	// mediaRouter.Use(authMiddleware)
+	mediaRouter.Use(authMiddleware)
 
 	// download attachments
 	mediaRouter.Get("/attachments/:attachmentId", MakeDownlodPostAttachmentHandler(mediaService))
