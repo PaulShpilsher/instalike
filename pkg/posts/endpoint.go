@@ -19,7 +19,7 @@ import (
 func MakeCreatePostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
-		var payload CreatePostInput
+		var payload createPostInput
 		if err := c.BodyParser(&payload); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
 		}
@@ -34,7 +34,7 @@ func MakeCreatePostHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
-		return c.Status(fiber.StatusCreated).JSON(CreatePostOutput{
+		return c.Status(fiber.StatusCreated).JSON(createPostOutput{
 			Id: postId,
 		})
 	}
@@ -53,7 +53,7 @@ func MakeGetPostsHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
-		return c.JSON(utils.Map(posts, MakeGetPostOutput))
+		return c.JSON(utils.Map(posts, makeGetPostOutput))
 	}
 }
 
@@ -80,7 +80,7 @@ func MakeGetPostHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
-		return c.JSON(MakeGetPostOutput(post))
+		return c.JSON(makeGetPostOutput(post))
 	}
 }
 
@@ -128,7 +128,7 @@ func MakeUpdatePostHandler(s PostsService) fiber.Handler {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		var payload UpdatePostInput
+		var payload updatePostInput
 		if err := c.BodyParser(&payload); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
 		}
