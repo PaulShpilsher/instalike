@@ -24,6 +24,11 @@ func RegisterRoutes(api fiber.Router, authMiddleware fiber.Handler, s PostsServi
 	// Delete a post (DELETE /api/posts/{postID}).
 	posts.Delete("/:postId", MakeDeletePostHandler(s))
 
+	// Add multimedia file to post (POST /api/posts/{postID}/file)
+	posts.Post("/:postId/attachment", MakeUploadMediaFileToPostHandler(s))
+	// temp := api.Group("/multimedia")
+	// temp.Post("/:postId/upload", MakeUploadMediaFileToPostHandler(s))
+
 }
 
 // func notImplemented(c *fiber.Ctx) error {

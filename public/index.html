@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form
+      enctype="multipart/form-data"
+      action="http://localhost:3000/api/posts/5/attachment"
+      method="post"
+    >
+      <input type="file" name="file" />
+      <input type="submit" value="upload" />
+    </form>
+  </body>
+</html>
+
+<script type="text/javascript">
+
+  async function login() {
+    // Default options are marked with *
+    const response = await fetch("http://localhost:3000/api/users/login", {
+      method: "POST", 
+ //     mode: "cors", // no-cors, *cors, same-origin
+   //   cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+     // credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json",
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      redirect: "follow", // manual, *follow, error
+      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      body: JSON.stringify({
+        email: "test6@test.com",
+        password: "secret6"
+      }), // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
+  }
+
+
+  login().then(x => console.log(x))
+
+</script>

@@ -1,6 +1,7 @@
 package webserver
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -18,41 +19,48 @@ import (
 )
 
 type WebServer struct {
-	serverUrl string
-	app       *fiber.App
-	db        *sqlx.DB
+	serverAddress string
+	app           *fiber.App
+	db            *sqlx.DB
 }
 
 func NewWebServer(config *config.Config) WebServer {
 
 	db := database.NewDbConnection(&config.Database)
 
-	jwtService := token.NewJwtService(&config.Jwt)
+	jwtService := token.NewJwtService(&config.Server)
 
 	app := fiber.New()
 	authMiddleware := middleware.GetAuthMiddleware(jwtService)
 
 	api := fiber.New()
+
+	app.Static(
+		"/static",      // mount address
+		"../../public", // path to the file folder
+	)
+
 	app.Mount("/api", api)
 
 	// /api/users
 	{
-		repository := users.NewRepository(db)
-		service := users.NewService(repository, jwtService)
-		users.RegisterRoutes(api, authMiddleware, service)
+		usersRepository := users.NewRepository(db)
+		usersService := users.NewService(usersRepository, jwtService)
+		users.RegisterRoutes(api, &config.Server, authMiddleware, usersService)
 	}
 
 	// /api/posts
 	{
-		repository := posts.NewRepository(db)
-		service := posts.NewService(repository)
-		posts.RegisterRoutes(api, authMiddleware, service)
+		postsRepository := posts.NewPostsRepository(db)
+		attachmentRepository := posts.NewAttachmentRepository(db)
+		postsService := posts.NewPostsService(postsRepository, attachmentRepository)
+		posts.RegisterRoutes(api, authMiddleware, postsService)
 	}
 
 	return WebServer{
-		app:       app,
-		db:        db,
-		serverUrl: config.Server.Url,
+		app:           app,
+		db:            db,
+		serverAddress: fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port),
 	}
 }
 
@@ -83,7 +91,7 @@ func (s WebServer) Start() {
 	}()
 
 	// Run server.
-	if err := s.app.Listen(s.serverUrl); err != nil {
+	if err := s.app.Listen(s.serverAddress); err != nil {
 		log.Fatalf("server failed to start. err : %v", err)
 	}
 
