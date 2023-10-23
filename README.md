@@ -28,6 +28,7 @@ docker-compose up --build
 ```
 In your browser go to http://localhost:3000/swagger/index.html
 
+
 ## Features <a name = "features"></a>
 
 - REST standard (followed as much as possible)
@@ -35,6 +36,7 @@ In your browser go to http://localhost:3000/swagger/index.html
 - Accessing posts and other resources are protected by JWT.  RSA public key scheme used in token creation and verification.
 - For simplicity and given time constraints post’s multimedia attachments (image and video content) are stored in the database.  TODO: This needs to be changed to store the binary data in the file system.
 - Smallest possible docker image using fromscratch base image.
+
 
 ## Design
 
@@ -49,7 +51,6 @@ In your browser go to http://localhost:3000/swagger/index.html
 - sqlx - is a library which provides a set of extensions on go's standard database/sql library.
 
 ### Code
-
 Project’s structure if fairly simple.  Here is run down of top level subdirectories:
 - db: contains database initialization sql script files
 - docs: contains swagger generated documentation files (to create them run command “make swag”
@@ -69,9 +70,12 @@ Each of the bounded contexts uses layered separation of responsibilities design 
 
 Also domain may contain definitions for domain’s data model, API DTO, and layer interface declarations
 
+
 ### Database
 
-<img src="https://github.com/PaulShpilsher/instalike/blob/master/db/diagram.png" />
+The model:
+
+![diagram](https://github.com/PaulShpilsher/instalike/assets/20777554/1777c6cc-a86b-408e-8f9d-4bd3190abe2e)
 
 An architectural decision was made not to delete any data.  Delete entity business use case is approached by having a deleted BOOLEAN column on “posts” and “post_comments” tables.  This allows to retain for historical and auditing purposes all the data.
 
@@ -110,7 +114,6 @@ Generate Swagger documents ( they will be stored in ./doc/instalike directory):
   make swag
 ```
 
-
 Start web service:
 ```
   make start
@@ -121,7 +124,6 @@ Build:
   make build
 ```
 This will build the code and put it in ./bin directory along with required supporting files (configuration and RSA keys for JWT)
-
 
 
 ## Configuration <a name = "config"></a>
