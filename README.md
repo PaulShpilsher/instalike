@@ -166,21 +166,22 @@ Users:
   - POST /api/users/login
 
  Posts:
-  - GET /api/posts
-  - GET /api/posts/:postId
-  - POST /api/posts
-  - PUT /api/posts/:postId
-  - DELETE /api/posts/:postId
-  - POST /api/posts/:postId/attachment 
-  - POST /api/posts/:postId/like
+  - GET /api/posts - get all posts
+  - GET /api/posts/:postId - get a post by id
+  - POST /api/posts - creates a post
+  - PUT /api/posts/:postId - updates a post by id (only authors are allowed to update)
+  - DELETE /api/posts/:postId - deletes a post by id (only authors are allowed to delete)
+  - POST /api/posts/:postId/attachment - attaches a multimedia file to post (only authors are allowed to update)
+  - POST /api/posts/:postId/like - likes a post (likes are limited to 1 per user)
+
+Post comments:
+  - POST/api/posts/{postId}/comments - creates a new post comment
+  - GET /api/posts/{postId}/comments - gets a list of post's comments by id
 
 Multimedia:
-  - GET /media/attachments/{attachmentId}
+  - GET /media/attachments/{attachmentId} - downloads a attached multimedia file by id.  
 
 
 ## TODO <a name = "todo"></a>
-- Likes
-- Comments
+- Tests
 - File storage
-
-
