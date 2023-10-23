@@ -1,6 +1,0 @@
-BEGIN;
-DROP VIEW posts_view
-DROP TABLE IF EXISTS post_attachments;
-DROP TABLE IF EXISTS posts;
-DROP TABLE IF EXISTS users;
-COMMIT;
