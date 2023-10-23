@@ -36,7 +36,7 @@ func MakeDownlodPostAttachmentHandler(s MediaService) fiber.Handler {
 		// we're gonna to pretend that the stream  is comming from some other storage
 		// but right now lets simulate that with creating byte reader from byte slice
 		reader := bytes.NewReader(attachment.Data)
-		// byte reader doesn't have Close()
+		// byte reader doesn't have Close(), so the next line is a placeholder when we have a file reader
 		// defer reader.Close()
 
 		// TODO: implement streaming.  for now send the whole thing
