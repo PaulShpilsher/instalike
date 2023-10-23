@@ -32,6 +32,7 @@ In your browser go to http://localhost:3000/swagger/index.html
 ## Features <a name = "features"></a>
 
 - REST standard (followed as much as possible)
+- CORS
 - New users registration and logging them in uses a simple username/password pattern.
 - Accessing posts and other resources are protected by JWT.  RSA public key scheme used in token creation and verification.
 - For simplicity and given time constraints post’s multimedia attachments (image and video content) are stored in the database.  TODO: This needs to be changed to store the binary data in the file system.
