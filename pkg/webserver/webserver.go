@@ -9,11 +9,11 @@ import (
 
 	"github.com/PaulShpilsher/instalike/pkg/config"
 	"github.com/PaulShpilsher/instalike/pkg/database"
-	"github.com/PaulShpilsher/instalike/pkg/media"
+	"github.com/PaulShpilsher/instalike/pkg/domain/media"
+	"github.com/PaulShpilsher/instalike/pkg/domain/posts"
+	"github.com/PaulShpilsher/instalike/pkg/domain/users"
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
-	"github.com/PaulShpilsher/instalike/pkg/posts"
 	"github.com/PaulShpilsher/instalike/pkg/token"
-	"github.com/PaulShpilsher/instalike/pkg/users"
 	"github.com/jmoiron/sqlx"
 
 	"github.com/gofiber/fiber/v2"
