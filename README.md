@@ -172,6 +172,7 @@ Users:
   - PUT /api/posts/:postId
   - DELETE /api/posts/:postId
   - POST /api/posts/:postId/attachment 
+  - POST /api/posts/:postId/like
 
 Multimedia:
   - GET /media/attachments/{attachmentId}

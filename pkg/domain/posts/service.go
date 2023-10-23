@@ -73,6 +73,17 @@ func (s *postsService) AttachFileToPost(userId int, postId int, contentType stri
 	return err
 }
 
+func (s *postsService) LikePost(userId int, postId int) error {
+
+	if liked, err := s.postsRepo.DidUserLikePost(postId, userId); err != nil {
+		return err
+	} else if liked {
+		return utils.ErrAlreadyExists // user already liked this post
+	}
+
+	return s.postsRepo.LikePost(postId, userId)
+}
+
 // private functions
 
 func (s *postsService) validatePostAuthor(userId int, postId int) error {

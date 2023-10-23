@@ -302,6 +302,36 @@ paths:
       summary: Attaches multimedia file to post
       tags:
       - posts
+  /api/posts/{postId}/like:
+    post:
+      description: User likes the post
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Post ID
+        in: path
+        name: postId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "409":
+          description: Conflict
+      security:
+      - Bearer: []
+      summary: User likes the post
+      tags:
+      - posts
   /api/users/login:
     post:
       consumes:
