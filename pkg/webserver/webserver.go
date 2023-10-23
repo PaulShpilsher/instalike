@@ -9,11 +9,11 @@ import (
 
 	"github.com/PaulShpilsher/instalike/pkg/config"
 	"github.com/PaulShpilsher/instalike/pkg/database"
-	"github.com/PaulShpilsher/instalike/pkg/media"
+	"github.com/PaulShpilsher/instalike/pkg/domain/media"
+	"github.com/PaulShpilsher/instalike/pkg/domain/posts"
+	"github.com/PaulShpilsher/instalike/pkg/domain/users"
 	"github.com/PaulShpilsher/instalike/pkg/middleware"
-	"github.com/PaulShpilsher/instalike/pkg/posts"
 	"github.com/PaulShpilsher/instalike/pkg/token"
-	"github.com/PaulShpilsher/instalike/pkg/users"
 	"github.com/jmoiron/sqlx"
 
 	"github.com/gofiber/fiber/v2"
@@ -53,31 +53,29 @@ func NewWebServer(config *config.Config) WebServer {
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	// api
-	apiRoute := fiber.New()
-	app.Mount("/api", apiRoute)
+	api := fiber.New()
+	app.Mount("/api", api)
 
 	// /api/users
 	{
-		usersRepository := users.NewRepository(db)
+		usersRepository := users.NewUsersRepository(db)
 		usersService := users.NewService(usersRepository, jwtService)
-		users.RegisterRoutes(apiRoute, &config.Server, authMiddleware, usersService)
+		users.RegisterRoutes(api, &config.Server, authMiddleware, usersService)
 	}
 
 	// /api/posts
 	{
 		postsRepository := posts.NewPostsRepository(db)
-		attachmentRepository := posts.NewAttachmentRepository(db)
-		postsService := posts.NewPostsService(postsRepository, attachmentRepository)
-		posts.RegisterRoutes(apiRoute, authMiddleware, postsService)
+		postAttachmentRepository := posts.NewPostAttachmentRepository(db)
+		postsService := posts.NewPostsService(postsRepository, postAttachmentRepository)
+		posts.RegisterRoutes(api, authMiddleware, postsService)
 	}
 
 	// /media
-	mediaRoute := fiber.New()
-	app.Mount("/media", mediaRoute)
 	{
-		attachmentsRepository := media.NewAttachmentRepository(db)
+		attachmentsRepository := media.NewPostAttachmentsRepository(db)
 		mediaService := media.NewMediaService(attachmentsRepository)
-		media.RegisterRoutes(mediaRoute, authMiddleware, mediaService)
+		media.RegisterRoutes(app, authMiddleware, mediaService)
 	}
 
 	return WebServer{

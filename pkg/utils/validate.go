@@ -2,6 +2,10 @@ package utils
 
 import "github.com/go-playground/validator/v10"
 
+//
+// Validation utilities for structs
+//
+
 var validate = validator.New()
 
 type ErrorResponse struct {
@@ -11,9 +15,8 @@ type ErrorResponse struct {
 }
 
 func ValidateStruct[T any](payload T) []*ErrorResponse {
-	var errors []*ErrorResponse
-	err := validate.Struct(payload)
-	if err != nil {
+	var errors []*ErrorResponse = nil
+	if err := validate.Struct(payload); err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
 			var element ErrorResponse
 			element.Field = err.StructNamespace()

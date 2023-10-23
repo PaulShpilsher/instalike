@@ -16,7 +16,7 @@ type loginOutput struct {
 	Token string `json:"token"`
 }
 
-type currentUserOutput struct {
+type userOutput struct {
 	UserId  int       `json:"userId"`
 	Email   string    `json:"email"`
 	Created time.Time `json:"created"`

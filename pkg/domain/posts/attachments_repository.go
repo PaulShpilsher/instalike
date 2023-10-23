@@ -6,17 +6,21 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type attachmentsRepository struct {
+//
+// PostAttachmentsRepository - post multimedia attachments data store
+//
+
+type postAttachmentsRepository struct {
 	*sqlx.DB
 }
 
-func NewAttachmentRepository(db *sqlx.DB) *attachmentsRepository {
-	return &attachmentsRepository{
+func NewPostAttachmentRepository(db *sqlx.DB) *postAttachmentsRepository {
+	return &postAttachmentsRepository{
 		DB: db,
 	}
 }
 
-func (r *attachmentsRepository) CreatePostAttachment(postId int, contentType string, binary []byte) error {
+func (r *postAttachmentsRepository) CreatePostAttachment(postId int, contentType string, binary []byte) error {
 
 	sql := `
 		INSERT INTO post_attachments (post_id, content_type, attachment_size, attachment_data) 
@@ -32,7 +36,7 @@ func (r *attachmentsRepository) CreatePostAttachment(postId int, contentType str
 	return nil
 }
 
-func (r *attachmentsRepository) GetPostAttachments(postId int) ([]Attachment, error) {
+func (r *postAttachmentsRepository) GetPostAttachments(postId int) ([]PostAttachment, error) {
 
 	sql := `
 		SELECT	id, content_type, attachment_size
@@ -40,10 +44,10 @@ func (r *attachmentsRepository) GetPostAttachments(postId int) ([]Attachment, er
 		WHERE 	post_id = $1
 	`
 
-	attachments := []Attachment{}
+	attachments := []PostAttachment{}
 	if err := r.DB.Select(&attachments, sql); err != nil {
 		log.Printf("[DB ERROR]: %v", err)
-		return []Attachment{}, err
+		return []PostAttachment{}, err
 	}
 
 	return attachments, nil

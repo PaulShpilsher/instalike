@@ -16,9 +16,8 @@ type Post struct {
 	AttachmentIds string `db:"attachment_ids" json:"attachmentIds"`
 }
 
-type Attachment struct {
+type PostAttachment struct {
 	Id          int    `db:"id" json:"id"`
 	ContentType string `db:"content_type" json:"contentType"`
 	Size        int    `db:"attachment_size" json:"size"`
-	// Data        []byte `db:"attachment_data" json:"data"`
 }

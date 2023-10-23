@@ -11,19 +11,6 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 )
 
-// CreatePost godoc
-// @Summary Create post
-// @Description creates a new post
-// @Tags posts
-// @Security Bearer
-// @param Authorization header string true "Authorization"
-// @Accept json
-// @Produce json
-// @Param data body createPostInput true "The input post struct"
-// @Success 200 {object} createPostOutput
-// @Failure 400
-// @Failure 401
-// @Router /api/posts [post]
 func MakeCreatePostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -48,17 +35,6 @@ func MakeCreatePostHandler(s PostsService) fiber.Handler {
 	}
 }
 
-// GetPosts godoc
-// @Summary Gets all posts
-// @Description gets all posts
-// @Tags posts
-// @Security Bearer
-// @param Authorization header string true "Authorization"
-// @Produce json
-// @Success 200 {array} getPostOutput
-// @Failure 400
-// @Failure 401
-// @Router /api/posts [get]
 func MakeGetPostsHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		posts, err := s.GetPosts()
@@ -71,19 +47,6 @@ func MakeGetPostsHandler(s PostsService) fiber.Handler {
 	}
 }
 
-// GetPost godoc
-// @Summary Gets a post by post id
-// @Description gets a post by post id
-// @Tags posts
-// @Security Bearer
-// @param Authorization header string true "Authorization"
-// @Produce json
-// @Param postId path int true "Post ID"
-// @Success 200 {object} getPostOutput
-// @Failure 400
-// @Failure 401
-// @Failure 404
-// @Router /api/posts/{postId} [get]
 func MakeGetPostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -106,19 +69,6 @@ func MakeGetPostHandler(s PostsService) fiber.Handler {
 	}
 }
 
-// DeletePost godoc
-// @Summary Deletes post
-// @Description deletes post by post id
-// @Tags posts
-// @Security Bearer
-// @param Authorization header string true "Authorization"
-// @Param postId path int true "Post ID"
-// @Success 204
-// @Failure 400
-// @Failure 401
-// @Failure 403
-// @Failure 404
-// @Router /api/posts/{postId} [delete]
 func MakeDeletePostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -145,21 +95,6 @@ func MakeDeletePostHandler(s PostsService) fiber.Handler {
 	}
 }
 
-// UpdatePost godoc
-// @Summary Updates post
-// @Description updates post
-// @Tags posts
-// @Security Bearer
-// @param Authorization header string true "Authorization"
-// @Accept json
-// @Param postId path int true "Post ID"
-// @Param data body updatePostInput true "The update post struct"
-// @Success 204
-// @Failure 400
-// @Failure 401
-// @Failure 403
-// @Failure 404
-// @Router /api/posts/{postId} [put]
 func MakeUpdatePostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -195,23 +130,6 @@ func MakeUpdatePostHandler(s PostsService) fiber.Handler {
 	}
 }
 
-// UploadPostAttachment godoc
-// @Summary Attaches multimedia file to post
-// @Description Attaches multimedia file to post
-// @Tags posts
-// @Security Bearer
-// @param Authorization header string true "Authorization"
-// @Accept mpfd
-// @Param postId path int true "Post ID"
-// @Param file formData file true "The input post struct"
-// @Success 204
-// @Failure 400
-// @Failure 401
-// @Failure 403
-// @Failure 404
-// @Failure 413
-// @Failure 422
-// @Router /api/posts/{postId}/attachment [post]
 func MakeUploadMediaFileToPostHandler(s PostsService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 

@@ -6,12 +6,16 @@ import (
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
+//
+// PostsService - posts business logic
+//
+
 type postsService struct {
 	postsRepo      PostsRepository
-	attachmentRepo AttachmentRepository
+	attachmentRepo PostAttachmentsRepository
 }
 
-func NewPostsService(postsRepo PostsRepository, attachmentRepo AttachmentRepository) *postsService {
+func NewPostsService(postsRepo PostsRepository, attachmentRepo PostAttachmentsRepository) *postsService {
 	return &postsService{
 		postsRepo:      postsRepo,
 		attachmentRepo: attachmentRepo,

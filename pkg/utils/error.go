@@ -2,6 +2,10 @@ package utils
 
 import "errors"
 
+//
+// Error related helper
+//
+
 var (
 	ErrAlreadyExists = errors.New("already exists")
 	ErrNotFound      = errors.New("not found")

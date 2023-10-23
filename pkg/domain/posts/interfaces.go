@@ -2,7 +2,7 @@ package posts
 
 import "io"
 
-// PostsService interface declares users business logic
+// PostsService interface - posts business logic
 type PostsService interface {
 	CreatePost(userId int, body string) (int, error)
 	GetPosts() ([]Post, error)
@@ -12,7 +12,7 @@ type PostsService interface {
 	AttachFileToPost(userId int, postId int, contentType string, size int, reader io.Reader) error
 }
 
-// PostsRepository interface declares users data store logic
+// PostsRepository interface - posts data store logic
 type PostsRepository interface {
 	GetAuthor(postId int) (int, error)
 	CreatePost(userId int, body string) (int, error)
@@ -22,6 +22,7 @@ type PostsRepository interface {
 	GetPost(postId int) (Post, error)
 }
 
-type AttachmentRepository interface {
+// PostAttachmentsRepository interface - post multimedia attachments data store
+type PostAttachmentsRepository interface {
 	CreatePostAttachment(postId int, contentType string, binary []byte) error
 }

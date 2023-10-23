@@ -8,6 +8,10 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+//
+// PostsRepository - posts data store logic
+//
+
 type postsRepository struct {
 	*sqlx.DB
 }

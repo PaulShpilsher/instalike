@@ -11,19 +11,6 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 )
 
-// DownloadPostAMultimediAttachment godoc
-// @Summary Downloads multimedia attached to a post
-// @Description downloads multimedia attached to a post
-// @Tags media
-// @Security Bearer
-// @param Authorization header string true "Authorization"
-// @Produce */*
-// @Param attachmentId path int true "Attachment ID"
-// @Success 200
-// @Failure 400
-// @Failure 401
-// @Failure 404
-// @Router /media/attachments/{attachmentId} [get]
 func MakeDownlodPostAttachmentHandler(s MediaService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -32,11 +19,9 @@ func MakeDownlodPostAttachmentHandler(s MediaService) fiber.Handler {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		log.Debug(attachmentId)
-
 		// TODO: in future rewrite that the attachments are stored in a separate storage
 		// and database contants only attachment's metadata
-		attachment, err := s.GetAttachment(attachmentId)
+		attachment, err := s.GetPostAttachment(attachmentId)
 		if err != nil {
 			if errors.Is(err, utils.ErrNotFound) {
 				return c.SendStatus(fiber.StatusNotFound)
@@ -49,7 +34,7 @@ func MakeDownlodPostAttachmentHandler(s MediaService) fiber.Handler {
 		// we're gonna to pretend that the stream  is comming from some other storage
 		// but right now lets simulate that with creating byte reader from byte slice
 		reader := bytes.NewReader(attachment.Data)
-		// byte reader doesn't have Close()
+		// byte reader doesn't have Close(), so the next line is a placeholder when we have a file reader
 		// defer reader.Close()
 
 		// TODO: implement streaming.  for now send the whole thing

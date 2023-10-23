@@ -11,14 +11,18 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type service struct {
+//
+// JwtService - token service implementation
+//
+
+type jwtService struct {
 	Ttl        time.Duration
 	PrivateKey *rsa.PrivateKey
 	PublicKey  *rsa.PublicKey
 }
 
-func NewJwtService(config *config.ServerConfig) *service {
-	return &service{
+func NewJwtService(config *config.ServerConfig) *jwtService {
+	return &jwtService{
 		Ttl:        time.Duration(config.TokenExpirationMinutes) * time.Minute,
 		PrivateKey: getPrivateKey(config.PrivateKeyFile),
 		PublicKey:  getPublicKey(config.PublicKeyFile),
@@ -31,11 +35,11 @@ type JwtService interface {
 	TTL() time.Duration
 }
 
-func (s *service) TTL() time.Duration {
+func (s *jwtService) TTL() time.Duration {
 	return s.Ttl
 }
 
-func (s *service) CreateToken(content string) (string, error) {
+func (s *jwtService) CreateToken(content string) (string, error) {
 
 	now := time.Now().UTC()
 
@@ -53,7 +57,7 @@ func (s *service) CreateToken(content string) (string, error) {
 	return token, nil
 }
 
-func (s *service) ValidateToken(token string) (string, error) {
+func (s *jwtService) ValidateToken(token string) (string, error) {
 	tok, err := jwt.Parse(token, func(jwtToken *jwt.Token) (interface{}, error) {
 		if _, ok := jwtToken.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected method: %s", jwtToken.Header["alg"])

@@ -13,18 +13,7 @@ import (
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
-// Login godoc
-// @Summary User register
-// @Description registers user.
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param data body registerInput true "The input register struct"
-// @Success 201
-// @Failure 400 {object} utils.ErrorOutput
-// @Failure 409
-// @Router /api/users/register [post]
-func MakeUserRegisterHandler(s UserService) fiber.Handler {
+func MakeUserRegisterHandler(s UsersService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		var payload registerInput
@@ -51,18 +40,7 @@ func MakeUserRegisterHandler(s UserService) fiber.Handler {
 	}
 }
 
-// Login godoc
-// @Summary User login
-// @Description performs user login, returns jwt token and sets http-only cookie.
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param data body loginInput true "The input login struct"
-// @Success 200 {object} loginOutput
-// @Failure 400 {object} utils.ErrorOutput
-// @Failure 401
-// @Router /api/users/login [post]
-func MakeUserLoginHandler(config *config.ServerConfig, s UserService) fiber.Handler {
+func MakeUserLoginHandler(config *config.ServerConfig, s UsersService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var payload loginInput
 		if err := c.BodyParser(&payload); err != nil {
@@ -99,18 +77,7 @@ func MakeUserLoginHandler(config *config.ServerConfig, s UserService) fiber.Hand
 	}
 }
 
-// Me godoc
-// @Summary Current user information
-// @Description gets currenly logger in user information
-// @Tags auth
-// @Security Bearer
-// @param Authorization header string true "Authorization"
-// @Produce json
-// @Success 200 {object} currentUserOutput
-// @Failure 401
-// @Failure 404
-// @Router /api/users/me [get]
-func MakeGetCurrentUserHandler(s UserService) fiber.Handler {
+func MakeUserMeHandler(s UsersService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		userId := middleware.GetAuthenicatedUserId(c)
@@ -121,7 +88,7 @@ func MakeGetCurrentUserHandler(s UserService) fiber.Handler {
 			return c.SendStatus(fiber.StatusNotFound)
 		}
 
-		return c.JSON(&currentUserOutput{
+		return c.JSON(&userOutput{
 			UserId:  user.Id,
 			Email:   user.Email,
 			Created: user.Created,
