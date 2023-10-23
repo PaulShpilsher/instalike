@@ -126,169 +126,56 @@ This will build the code and put it in ./bin directory along with required suppo
 
 ## Configuration <a name = "config"></a>
 
-This web service uses [node-config-ts](https://www.npmjs.com/package/node-config-ts) for configuration.
-The config file is 
-```
-./config/default.json
+This web service uses .env file for configuration.
 
-{
-  "port": 4040,
-  "mongoUri": "mongodb://localhost:27017/acronyms",
-  "seedFile": "./data/acronym.json"
-}
+example:
 ```
-You may change the values in that file. Also you can have settings applied based on a runtime environment.
-Example:
-set environment variable 
-```
-  NODE_ENV=production
-```
-then the service will use setting from *./config/env/production.json* config file.
-```
-  ./config/env/production.json
-```
-You can also use command line arguments to override settings.
-```
-  --port 5000
-```
+# ./.env
 
-For full understanding of configuration features please refer to [node-config-ts](https://www.npmjs.com/package/node-config-ts)  documentation
+# Server configuration
+HOST="0.0.0.0"
+PORT=3000
+DOMAIN="localhost"
 
+CORS_ALLOWED_ORIGINS="*"
+
+TOKEN_EXPIRATION_MINUTES=720
+TOKEN_PRIVATE_KEY_FILE="keys/rsa"
+TOKEN_PUBLIC_KEY_FILE="keys/rsa.pub"
+
+
+# Database configuration
+DB_URL="postgresql://pusr:pusr_secret@localhost:5432/instalike-data?sslmode=disable"
+DB_MAX_CONNECTIONS=100
+DB_MAX_IDLE_CONNECTIONS=10
+DB_MAX_LIFETIME_CONNECTIONS=2
+```
 
 ## API <a name="api"></a>
 
-### Get acronyms by *fuzzy* searching definitions
-```
-  GET /acronym?from=:fromlimit=:limit&search=:search
-```
-Query arguments:
-- *:search* is a mandatory string what to search for (case insensitive)
-- *:from* is a mandatory non-negative number for paging: how many results to skip
-- *:limit* is a mandatory non-negative number for paging: maximum number of acronyms to return
+The APIs definitions are available with swagger.  Just start the server using docker compose and navigate to at http://localhost:3000/swagger/index.html
 
-Result is a JSON array of acronyms with definitions
-```
-  JSON:
-  [
-    {
-      acronym: string
-      definition: string
-    },
-    ...
-  ]
-```
-Paging note: after getting a page of results if more data available the response header will contain an entry "next" with a path to the next page of results.
-```
-  GET /acronym?from=10limit=5&search=freack
-  
-  Response header (when more data available):
-    next: /acronym?from=15limit=5&search=freack
-```
-- On success returns: HTTP Status 200 (OK)
-- In case of missing or invalid query parameters returns: HTTP Status 400 (BAD_REQUEST)
+Summary of APIs:
 
-Testing
-```
-curl --location --request GET 'http://localhost:4040/acronym?from=50&limit=10&search=one'
-```
+Users:
+  - POST /api/users/register
+  - POST /api/users/login
+
+ Posts:
+  - GET /api/posts
+  - GET /api/posts/:postId
+  - POST /api/posts
+  - PUT /api/posts/:postId
+  - DELETE /api/posts/:postId
+  - POST /api/posts/:postId/attachment 
+
+Multimedia:
+  - GET /media/attachments/{attachmentId}
 
 
-### Get acronym's definitions
-```
-  GET /acronym/:acronym
-```
-Query arguments:
-- *:acronym* a mandatory string of an acronym (case insensitive)
-
-Result is a JSON object of an acronym and its definition
-```
-  JSON:
-    {
-      acronym: string
-      definition: string
-    }
-```
-*Since the client alreany has the acronym, an agument could be made for retuning just the acronym's definition.  For consitency I decided returning the "whole" object across all GET verbs.*
-- On success returns: HTTP Status 200 (OK)
-- When acronym does not exist returns: HTTP Status 404 (NOT_FOUND)
-
-Testing
-```
-curl --location --request GET 'http://localhost:4040/acronym/test99'
-```
+## TODO <a name = "todo"></a>
+- Likes
+- Comments
+- File storage
 
 
-### Create new acronym with definition
-```
-  POST /acronym
-  Header:
-    Content-Type: application/json
-  Body:
-  {
-    acronym: string
-    definition: string
-  }
-```
-- On success returns: HTTP Status 201 (CREATED)
-- If acronym already exist returns: HTTP Status 409 (CONFLICT)
-- If either acronym or definition is missing returns: HTTP Status 400 (BAD_REQUEST)
-
-Testing
-```
-curl --location --request POST 'http://localhost:4040/acronym' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-    "acronym": "TEST99",
-    "definition": "Test ninety nine"
-}'
-```
-
-
-### Update acronym's definition</i>
-```
-  PUT /acronym/:acronym
-  Header:
-    Authorization: XXXXX
-    Content-Type: application/json
-  Body: {
-    definition: string
-  }
-```
-- On success returns: HTTP Status 204 (NO_CONTENT)
-- On failure returns: HTTP Status 400 (BAD_REQUEST)
-- On missing authorization header returns: HTTP Status 400 (UNAUTHORIZED)
-
-Note: *This API uses an authorization header to ensure acronyms are protected.  Currently this implementation just checks for the presense of Authorization header. It does not validate the token.*
-
-Testing
-```
-curl --location --request PUT 'http://localhost:4040/acronym/test99' \
-  --header 'Content-Type: application/json' \
-  --header 'Authorization: auth-token' \
-  --data-raw '{
-    "definition": "Test ninety nine. Take 2"
-}'
-```
-
-
-### Delete an acronym
-```
-  GET /acronym/:acronym
-  Header:
-    Authorization: XXXXX
-```
-Note: *This API uses an authorization header to ensure acronyms are protected.  Currently this implementation just checks for the presense of Authorization header. It does not validate the token.*
-
-- On success returns: HTTP Status 204 (NO_CONTENT)
-- On failure returns: HTTP Status 400 (BAD_REQUEST)
-- On missing authorization header returns: HTTP Status 400 (UNAUTHORIZED)
-
-Testing
-```
-curl --location --request DELETE 'http://localhost:4040/acronym/test99' \
-  --header 'Authorization: auth-token'
-```
-
-## �TODO <a name = "todo"></a>
-- logging
-- unit testing
