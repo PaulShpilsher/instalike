@@ -11,6 +11,19 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 )
 
+// DownloadPostMultimediAttachment godoc
+// @Summary Downloads multimedia file by post's attachmentId
+// @Description downloads multimedia file by post's attachmentId
+// @Tags media
+// @Security Bearer
+// @param Authorization header string true "Authorization"
+// @Produce */*
+// @Param attachmentId path int true "Attachment ID"
+// @Success 200
+// @Failure 400
+// @Failure 401
+// @Failure 404
+// @Router /media/attachments/{attachmentId} [get]
 func MakeDownlodPostAttachmentHandler(s MediaService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
