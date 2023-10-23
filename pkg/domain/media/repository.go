@@ -8,17 +8,21 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type attachmentsRepository struct {
+//
+// PostAttachmentsRepository - post multimedia attachments data store
+//
+
+type postAttachmentsRepository struct {
 	*sqlx.DB
 }
 
-func NewAttachmentRepository(db *sqlx.DB) *attachmentsRepository {
-	return &attachmentsRepository{
+func NewPostAttachmentsRepository(db *sqlx.DB) *postAttachmentsRepository {
+	return &postAttachmentsRepository{
 		DB: db,
 	}
 }
 
-func (r *attachmentsRepository) GetAttachment(attachmentId int) (Attachment, error) {
+func (r *postAttachmentsRepository) GetPostAttachment(attachmentId int) (MultimediaData, error) {
 
 	sql := `
 		SELECT	content_type, attachment_size, attachment_data
@@ -27,13 +31,13 @@ func (r *attachmentsRepository) GetAttachment(attachmentId int) (Attachment, err
 		LIMIT 	1
 	`
 
-	attachment := Attachment{}
+	attachment := MultimediaData{}
 	if err := r.DB.Get(&attachment, sql, attachmentId); err != nil {
 		if strings.Contains(err.Error(), "no rows in result set") {
-			return Attachment{}, utils.ErrNotFound
+			return MultimediaData{}, utils.ErrNotFound
 		}
 		log.Printf("[DB ERROR]: %v", err)
-		return Attachment{}, err
+		return MultimediaData{}, err
 	}
 
 	return attachment, nil

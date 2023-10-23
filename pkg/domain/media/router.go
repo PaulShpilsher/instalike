@@ -6,11 +6,9 @@ import (
 
 func RegisterRoutes(mediaRouter fiber.Router, authMiddleware fiber.Handler, mediaService MediaService) {
 
-	mediaRouter.Use(authMiddleware)
-
-	// DownloadPostAMultimediAttachment godoc
-	// @Summary Downloads multimedia attached to a post
-	// @Description downloads multimedia attached to a post
+	// DownloadPostMultimediAttachment godoc
+	// @Summary Downloads multimedia file by post's attachmentId
+	// @Description downloads multimedia file by post's attachmentId
 	// @Tags media
 	// @Security Bearer
 	// @param Authorization header string true "Authorization"
@@ -21,5 +19,6 @@ func RegisterRoutes(mediaRouter fiber.Router, authMiddleware fiber.Handler, medi
 	// @Failure 401
 	// @Failure 404
 	// @Router /media/attachments/{attachmentId} [get]
-	mediaRouter.Get("/attachments/:attachmentId", MakeDownlodPostAttachmentHandler(mediaService))
+	mediaRouter.Get("/media/attachments/:attachmentId", authMiddleware, MakeDownlodPostAttachmentHandler(mediaService))
+
 }

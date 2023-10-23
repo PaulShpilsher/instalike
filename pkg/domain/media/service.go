@@ -1,15 +1,16 @@
 package media
 
+// MediaService - multimedia business logic
 type mediaService struct {
-	attachmentRepo AttachmentRepository
+	postAttachmentRepo PostAttachmentsRepository
 }
 
-func NewMediaService(attachmentRepo AttachmentRepository) *mediaService {
+func NewMediaService(attachmentRepo PostAttachmentsRepository) *mediaService {
 	return &mediaService{
-		attachmentRepo: attachmentRepo,
+		postAttachmentRepo: attachmentRepo,
 	}
 }
 
-func (s *mediaService) GetAttachment(attachmentId int) (Attachment, error) {
-	return s.attachmentRepo.GetAttachment(attachmentId)
+func (s *mediaService) GetPostAttachment(attachmentId int) (MultimediaData, error) {
+	return s.postAttachmentRepo.GetPostAttachment(attachmentId)
 }

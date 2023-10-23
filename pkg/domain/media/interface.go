@@ -1,9 +1,11 @@
 package media
 
+// MediaService interface - multimedia business logic
 type MediaService interface {
-	GetAttachment(attachmentId int) (Attachment, error)
+	GetPostAttachment(attachmentId int) (MultimediaData, error)
 }
 
-type AttachmentRepository interface {
-	GetAttachment(attachmentId int) (Attachment, error)
+// PostAttachmentsRepository interface - post multimedia attachments data store
+type PostAttachmentsRepository interface {
+	GetPostAttachment(attachmentId int) (MultimediaData, error)
 }

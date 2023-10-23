@@ -72,12 +72,10 @@ func NewWebServer(config *config.Config) WebServer {
 	}
 
 	// /media
-	mediaRoute := fiber.New()
-	app.Mount("/media", mediaRoute)
 	{
-		attachmentsRepository := media.NewAttachmentRepository(db)
+		attachmentsRepository := media.NewPostAttachmentsRepository(db)
 		mediaService := media.NewMediaService(attachmentsRepository)
-		media.RegisterRoutes(mediaRoute, authMiddleware, mediaService)
+		media.RegisterRoutes(app, authMiddleware, mediaService)
 	}
 
 	return WebServer{
