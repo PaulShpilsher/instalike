@@ -10,6 +10,7 @@ Go-based REST API webservice for an Instagram-like app, thus InstaLike :-)
 - [Quick start](#quickstart)
 - [Features](#features)
 - [Design](#design)
+- [Development](#development)
 - [Configuration](#config)
 - [API](#api)
 
@@ -70,7 +71,7 @@ Also domain may contain definitions for domain’s data model, API DTO, and laye
 
 ### Database
 
-<img href="./db/diagram.png" />
+<img href="https://github.com/PaulShpilsher/instalike/blob/db/diagram.png" />
 
 An architectural decision was made not to delete any data.  Delete entity business use case is approached by having a deleted BOOLEAN column on “posts” and “post_comments” tables.  This allows to retain for historical and auditing purposes all the data.
 
@@ -83,7 +84,7 @@ Important notes:
 - in future storing multimedia files needs to be removed from post_attachmens table.  This table will store only attachment’s metadata information and a reference (probably file id) to the file storage.
 
 
-### Developer world
+## Development <a name = "development"></a>
 Assuming Go, docker, git and make installed, here are simple instructions to get you up and running in no time
 
 Get the code from github
