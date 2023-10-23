@@ -25,7 +25,7 @@ func NewPostsRepository(db *sqlx.DB) *postsRepository {
 func (r *postsRepository) CreatePost(userId int, body string) (int, error) {
 
 	sql := `
-		INSERT INTO posts (user_id, body)
+		INSERT INTO posts (author_id, body)
 		VALUES($1, $2)
 		RETURNING id
 	`
@@ -79,7 +79,7 @@ func (r *postsRepository) GetPost(postId int) (Post, error) {
 func (r *postsRepository) GetAuthor(postId int) (int, error) {
 
 	sql := `
-		SELECT	user_id
+		SELECT	author_id
 		FROM	posts
 		WHERE	id = $1
 		AND		deleted IS FALSE
