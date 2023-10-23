@@ -24,6 +24,8 @@ Is is Go web service written in Go that uses Postgres for data storage.
 
 Run fully functioning service with the database in docker containers using docker compose (assuming docker and docker compose are installed):
 ```
+git clone https://github.com/PaulShpilsher/instalike.git
+cd instalike
 docker-compose up --build
 ```
 In your browser go to http://localhost:3000/swagger/index.html
