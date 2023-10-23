@@ -1,0 +1,12 @@
+.git
+.gitignore
+.vscode
+bin
+requirements
+
+LICENSE
+VERSION
+README.md
+Changelog.md
+Makefile
+docker-compose.yml
