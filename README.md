@@ -62,7 +62,18 @@ This will build the code and put it in ./bin directory along with required suppo
 - Accessing posts and other resources are protected by JWT.  RSA public key scheme used in token creation and verification.
 - For simplicity and given time constraints post’s multimedia attachments (image and video content) are stored in the database.  TODO: This needs to be changed to store the binary data in the file system. 
 
+## Approach and design
 
+### Tech
+- go …duh!
+- go fiber – very fast API framework build on top Fasthttp
+- go playground validator – user input validation
+- go playgroud jwt – for token creation and validation
+- brcypt – for password hashing
+- pgx– a postgres driver
+- sqlx – is a library which provides a set of extensions on go's standard database/sql library.
+
+### Code
 
 
 ## Configuration <a name = "config"></a>
