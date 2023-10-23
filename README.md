@@ -76,7 +76,8 @@ Also domain may contain definitions for domain’s data model, API DTO, and laye
 
 The model:
 
-![diagram](https://github.com/PaulShpilsher/instalike/assets/20777554/1777c6cc-a86b-408e-8f9d-4bd3190abe2e)
+![dev/diagram.png](https://github.com/PaulShpilsher/instalike/assets/20777554/1a825a24-8251-4110-887a-e089dec86846)
+
 
 An architectural decision was made not to delete any data.  Delete entity business use case is approached by having a deleted BOOLEAN column on “posts” and “post_comments” tables.  This allows to retain for historical and auditing purposes all the data.
 
