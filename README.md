@@ -70,6 +70,16 @@ Also domain may contain definitions for domain’s data model, API DTO, and laye
 
 ### Database
 
+<img href="./db/diagram.png" />
+
+An architectural decision was made not to delete any data.  Delete entity business use case is approached by having a deleted BOOLEAN column on “posts” and “post_comments” tables.  This allows to retain for historical and auditing purposes all the data.
+
+Since the data returned to the user is filtered WHERE deleted IS FALSE we use filtered indexes to efficiently get the relevant data.
+
+Another performance improvement is use of the VIEWS.  This allows us to save database access calls when for example we need to return post data with filled in author’s email (or in future username).  Without this we would have to query posts and users tables, and in code match user information to each of the posts read from the database.  
+
+
+
 ### Developer world
 Assuming Go, docker, git and make installed, here are simple instructions to get you up and running in no time
 
