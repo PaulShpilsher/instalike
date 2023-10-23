@@ -12,7 +12,7 @@ import (
 func GetAuthMiddleware(s token.JwtService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
-		token := getToken(c)
+		token := getAuthorizationToken(c)
 		if token == "" {
 			return c.SendStatus(fiber.StatusUnauthorized)
 		}
@@ -36,8 +36,14 @@ func GetAuthMiddleware(s token.JwtService) fiber.Handler {
 	}
 }
 
-func getToken(c *fiber.Ctx) string {
-	// get authorization token
+func GetAuthenicatedUserId(c *fiber.Ctx) int {
+	userId := c.Locals("userId").(int)
+	return userId
+}
+
+// private
+
+func getAuthorizationToken(c *fiber.Ctx) string {
 	authorization := c.Get("Authorization")
 
 	if strings.HasPrefix(authorization, "Bearer ") {
@@ -47,9 +53,4 @@ func getToken(c *fiber.Ctx) string {
 	} else {
 		return authorization
 	}
-}
-
-func GetAuthenicatedUserId(c *fiber.Ctx) int {
-	userId := c.Locals("userId").(int)
-	return userId
 }

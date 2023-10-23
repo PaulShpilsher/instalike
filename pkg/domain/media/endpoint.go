@@ -19,8 +19,6 @@ func MakeDownlodPostAttachmentHandler(s MediaService) fiber.Handler {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		log.Debug(attachmentId)
-
 		// TODO: in future rewrite that the attachments are stored in a separate storage
 		// and database contants only attachment's metadata
 		attachment, err := s.GetPostAttachment(attachmentId)

@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+// ParseStringToInt64Array function - postgres returns an integer ARRAY column as a string in format "{1,2,3,4}".
+// this function parses this string and returns []int64 data
 func ParseStringToInt64Array(array string) []int64 {
 
 	if array == "" || array == "{}" || array[0] != '{' || array[len(array)-1] != '}' {
