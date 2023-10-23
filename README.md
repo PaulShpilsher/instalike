@@ -9,6 +9,7 @@ Go-based REST API webservice for an Instagram-like app, thus InstaLike :-)
 - [About](#about)
 - [Quick start](#quickstart)
 - [Features](#features)
+- [Design](#design)
 - [Configuration](#config)
 - [API](#api)
 
@@ -34,18 +35,38 @@ In your browser go to http://localhost:3000/swagger/index.html
 - For simplicity and given time constraints post’s multimedia attachments (image and video content) are stored in the database.  TODO: This needs to be changed to store the binary data in the file system.
 - Smallest possible docker image using fromscratch base image.
 
-## Approach and design
+## Design
 
 ### Tech
 - go …duh!
-- go fiber – very fast API framework build on top Fasthttp
-- go playground validator – user input validation
-- go playgroud jwt – for token creation and validation
-- brcypt – for password hashing
-- pgx– a postgres driver
-- sqlx – is a library which provides a set of extensions on go's standard database/sql library.
+- go fiber - very fast API framework build on top Fasthttp
+- go playground validator - structure validation
+- go playgroud jwt - for token creation and validation
+- brcypt - for password hashing
+- swag - swagger
+- pgx - a postgres driver
+- sqlx - is a library which provides a set of extensions on go's standard database/sql library.
 
 ### Code
+
+Project’s structure if fairly simple.  Here is run down of top level subdirectories:
+- db: contains database initialization sql script files
+- docs: contains swagger generated documentation files (to create them run command “make swag”
+- keys: contains RSA public and private keys for token authentication (to create then run command “make cert”)
+- pkg: contains all of the application logic
+
+The application uses Domain Driven Design (DDD). ‘pkg/domain’ contains code for 3 domain bounded contexts. They are:
+- users - contains everything related to user related use cases
+- posts - contains  everything related to user posts related use cases.
+- media - contains multimedia related code, such as downloading post images and videos
+
+Each of the bounded contexts uses layered separation of responsibilities design pattern.  It uses dependency injection for layer interaction.  The layers are:
+- repository - provides \database / store access
+- service - provides domain’s business logic
+- endpoint - provides API functionality, i.e. API handlers
+- router - defines API routes
+
+Also domain may contain definitions for domain’s data model, API DTO, and layer interface declarations
 
 
 ### Developer world
