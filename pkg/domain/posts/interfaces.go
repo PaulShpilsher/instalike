@@ -11,6 +11,8 @@ type PostsService interface {
 	DeletePost(userId int, postId int) error
 	AttachFileToPost(userId int, postId int, contentType string, size int, reader io.Reader) error
 	LikePost(userId int, postId int) error
+	CreateComment(userId int, postId int, body string) error
+	GetComments(postId int) ([]PostComment, error)
 }
 
 // PostsRepository interface - posts data store logic
@@ -23,6 +25,12 @@ type PostsRepository interface {
 	GetPost(postId int) (Post, error)
 	DidUserLikePost(postId int, userId int) (bool, error)
 	LikePost(postId int, userId int) error
+}
+
+// PostsRepository interface - posts data store logic
+type PostCommentsRepository interface {
+	CreateComment(postId int, userId int, body string) error
+	GetComments(postId int) ([]PostComment, error)
 }
 
 // PostAttachmentsRepository interface - post multimedia attachments data store

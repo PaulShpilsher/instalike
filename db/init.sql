@@ -75,6 +75,7 @@ AS
 SELECT      p.id, 
             p.created_at,
             p.updated_at,
+            p.post_id,
             u.email AS author, 
             p.body,
             (p.created_at <> p.updated_at) AS updated

@@ -310,3 +310,77 @@ func MakeLikePostHandler(s PostsService) fiber.Handler {
 		return c.SendStatus(fiber.StatusNoContent)
 	}
 }
+
+// CreatePostComment godoc
+// @Summary Adds comment to post
+// @Description Adds comment to post
+// @Tags posts
+// @Accept json
+// @Security Bearer
+// @param Authorization header string true "Authorization"
+// @Param postId path int true "Post ID"
+// @Param data body createPostCommentInput true "The create comment struct"
+// @Success 204
+// @Failure 400
+// @Failure 401
+// @Failure 404
+// @Router /api/posts/{postId}/comments [post]
+func MakeCreatePostCommentHandler(s PostsService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		postId, err := getPostId(c)
+		if err != nil {
+			return c.SendStatus(fiber.StatusBadRequest)
+		}
+
+		var payload createPostCommentInput
+		if err := c.BodyParser(&payload); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
+		}
+
+		if errors := utils.ValidateStruct(payload); errors != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(utils.NewErrorOutput(err.Error()))
+		}
+
+		err = s.CreateComment(middleware.GetAuthenicatedUserId(c), postId, payload.Body)
+		if err != nil {
+			if errors.Is(err, utils.ErrNotFound) {
+				return c.SendStatus(fiber.StatusNotFound)
+			}
+
+			log.Error(err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
+		return c.SendStatus(fiber.StatusNoContent)
+	}
+}
+
+// GetPostComments godoc
+// @Summary Gets all post's comments
+// @Description gets post's comments
+// @Tags posts
+// @Produce json
+// @Security Bearer
+// @param Authorization header string true "Authorization"
+// @Param postId path int true "Post ID"
+// @Success 200 {array} getPostCommentOutput
+// @Failure 400
+// @Failure 401
+// @Router /api/posts/{postId}/comments [get]
+func MakeGetPostCommentsHandler(s PostsService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		postId, err := getPostId(c)
+		if err != nil {
+			return c.SendStatus(fiber.StatusBadRequest)
+		}
+
+		posts, err := s.GetComments(postId)
+		if err != nil {
+			log.Error(err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
+		return c.JSON(utils.Map(posts, makeGetPostCommentOutput))
+	}
+}

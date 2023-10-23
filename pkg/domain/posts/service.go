@@ -12,12 +12,14 @@ import (
 
 type postsService struct {
 	postsRepo      PostsRepository
+	commentsRepo   PostCommentsRepository
 	attachmentRepo PostAttachmentsRepository
 }
 
-func NewPostsService(postsRepo PostsRepository, attachmentRepo PostAttachmentsRepository) *postsService {
+func NewPostsService(postsRepo PostsRepository, attachmentRepo PostAttachmentsRepository, commentsRepo PostCommentsRepository) *postsService {
 	return &postsService{
 		postsRepo:      postsRepo,
+		commentsRepo:   commentsRepo,
 		attachmentRepo: attachmentRepo,
 	}
 }
@@ -82,6 +84,13 @@ func (s *postsService) LikePost(userId int, postId int) error {
 	}
 
 	return s.postsRepo.LikePost(postId, userId)
+}
+
+func (s *postsService) CreateComment(userId int, postId int, body string) error {
+	return s.commentsRepo.CreateComment(postId, userId, body)
+}
+func (s *postsService) GetComments(postId int) ([]PostComment, error) {
+	return s.commentsRepo.GetComments(postId)
 }
 
 // private functions

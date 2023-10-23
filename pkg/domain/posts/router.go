@@ -23,4 +23,8 @@ func RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler, s PostsSe
 
 	postsRouter.Post("/:postId/like", MakeLikePostHandler(s))
 
+	postsRouter.Post("/:postId/comments", MakeCreatePostCommentHandler(s))
+
+	postsRouter.Get("/:postId/comments", MakeGetPostCommentsHandler(s))
+
 }
