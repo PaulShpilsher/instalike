@@ -324,6 +324,110 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/posts/{postId}/comments": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets post's comments",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Gets all post's comments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "postId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/posts.getPostCommentOutput"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Adds comment to post",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Adds comment to post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "postId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The create comment struct",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/posts.createPostCommentInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
         "/api/posts/{postId}/like": {
             "post": {
                 "security": [
@@ -543,6 +647,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "posts.createPostCommentInput": {
+            "type": "object",
+            "required": [
+                "body"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                }
+            }
+        },
         "posts.createPostInput": {
             "type": "object",
             "required": [
@@ -557,6 +672,26 @@ const docTemplate = `{
         "posts.createPostOutput": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "posts.getPostCommentOutput": {
+            "type": "object",
+            "properties": {
+                "IsUpdated": {
+                    "type": "boolean"
+                },
+                "author": {
+                    "type": "string"
+                },
+                "body": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 }

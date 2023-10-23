@@ -66,8 +66,9 @@ func NewWebServer(config *config.Config) WebServer {
 	// /api/posts
 	{
 		postsRepository := posts.NewPostsRepository(db)
-		postAttachmentRepository := posts.NewPostAttachmentRepository(db)
-		postsService := posts.NewPostsService(postsRepository, postAttachmentRepository)
+		postCommentsRepository := posts.NewPostCommentsRepository(db)
+		postAttachmentRepository := posts.NewPostAttachmentsRepository(db)
+		postsService := posts.NewPostsService(postsRepository, postAttachmentRepository, postCommentsRepository)
 		posts.RegisterRoutes(api, authMiddleware, postsService)
 	}
 

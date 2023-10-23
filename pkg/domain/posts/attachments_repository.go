@@ -14,7 +14,7 @@ type postAttachmentsRepository struct {
 	*sqlx.DB
 }
 
-func NewPostAttachmentRepository(db *sqlx.DB) *postAttachmentsRepository {
+func NewPostAttachmentsRepository(db *sqlx.DB) *postAttachmentsRepository {
 	return &postAttachmentsRepository{
 		DB: db,
 	}

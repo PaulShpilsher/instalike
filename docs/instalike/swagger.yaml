@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  posts.createPostCommentInput:
+    properties:
+      body:
+        type: string
+    required:
+    - body
+    type: object
   posts.createPostInput:
     properties:
       body:
@@ -9,6 +16,19 @@ definitions:
     type: object
   posts.createPostOutput:
     properties:
+      id:
+        type: integer
+    type: object
+  posts.getPostCommentOutput:
+    properties:
+      IsUpdated:
+        type: boolean
+      author:
+        type: string
+      body:
+        type: string
+      created:
+        type: string
       id:
         type: integer
     type: object
@@ -300,6 +320,73 @@ paths:
       security:
       - Bearer: []
       summary: Attaches multimedia file to post
+      tags:
+      - posts
+  /api/posts/{postId}/comments:
+    get:
+      description: gets post's comments
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Post ID
+        in: path
+        name: postId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/posts.getPostCommentOutput'
+            type: array
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+      security:
+      - Bearer: []
+      summary: Gets all post's comments
+      tags:
+      - posts
+    post:
+      consumes:
+      - application/json
+      description: Adds comment to post
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Post ID
+        in: path
+        name: postId
+        required: true
+        type: integer
+      - description: The create comment struct
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/posts.createPostCommentInput'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+      security:
+      - Bearer: []
+      summary: Adds comment to post
       tags:
       - posts
   /api/posts/{postId}/like:
