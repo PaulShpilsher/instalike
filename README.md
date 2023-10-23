@@ -78,6 +78,9 @@ Since the data returned to the user is filtered WHERE deleted IS FALSE we use fi
 
 Another performance improvement is use of the VIEWS.  This allows us to save database access calls when for example we need to return post data with filled in author’s email (or in future username).  Without this we would have to query posts and users tables, and in code match user information to each of the posts read from the database.  
 
+Important notes:  
+- posts likes are stored in an array column containing ids of users who liked the post.  This is done in order to prevent user liking more than once provide the “unlike” functionality (not implement). And counting likes is provided for our pleasure by Postgres’s cardinality method (see posts_view)
+- in future storing multimedia files needs to be removed from post_attachmens table.  This table will store only attachment’s metadata information and a reference (probably file id) to the file storage.
 
 
 ### Developer world
@@ -93,7 +96,19 @@ Start Postgres server instance in a docker container (*Docker must be installed*
 ```
   make postgres
 ```
-todo: apply db/init.sql
+
+TODO: instructions on how to apply db/init.sql.  But for now just execute db/init.sql script in the database using you favorite Postgres client. (look .env file for database connection information)
+
+Generate RSA keys (they will be stored in ./keys directory):
+```
+  make cert
+```
+
+Generate Swagger documents ( they will be stored in ./doc/instalike directory):
+```
+  make swag
+```
+
 
 Start web service:
 ```
