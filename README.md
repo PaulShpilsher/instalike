@@ -20,13 +20,32 @@ Is is Go web service written in Go that uses Postgres for data storage.
 
 ## Quick start <a name = "quickstart"></a>
 
-## Docker world
-
 Run fully functioning service with the database in docker containers using docker compose (assuming docker and docker compose are installed):
 ```
 docker-compose up --build
 ```
 In your browser go to http://localhost:3000/swagger/index.html
+
+## Features <a name = "features"></a>
+
+- REST standard (followed as much as possible)
+- New users registration and logging them in uses a simple username/password pattern.
+- Accessing posts and other resources are protected by JWT.  RSA public key scheme used in token creation and verification.
+- For simplicity and given time constraints post’s multimedia attachments (image and video content) are stored in the database.  TODO: This needs to be changed to store the binary data in the file system.
+- Smallest possible docker image using fromscratch base image.
+
+## Approach and design
+
+### Tech
+- go …duh!
+- go fiber – very fast API framework build on top Fasthttp
+- go playground validator – user input validation
+- go playgroud jwt – for token creation and validation
+- brcypt – for password hashing
+- pgx– a postgres driver
+- sqlx – is a library which provides a set of extensions on go's standard database/sql library.
+
+### Code
 
 
 ### Developer world
@@ -55,25 +74,6 @@ Build:
 ```
 This will build the code and put it in ./bin directory along with required supporting files (configuration and RSA keys for JWT)
 
-## Features <a name = "features"></a>
-
-- REST standard (followed as much as possible)
-- New users registration and logging them in uses a simple username/password pattern.
-- Accessing posts and other resources are protected by JWT.  RSA public key scheme used in token creation and verification.
-- For simplicity and given time constraints post’s multimedia attachments (image and video content) are stored in the database.  TODO: This needs to be changed to store the binary data in the file system. 
-
-## Approach and design
-
-### Tech
-- go …duh!
-- go fiber – very fast API framework build on top Fasthttp
-- go playground validator – user input validation
-- go playgroud jwt – for token creation and validation
-- brcypt – for password hashing
-- pgx– a postgres driver
-- sqlx – is a library which provides a set of extensions on go's standard database/sql library.
-
-### Code
 
 
 ## Configuration <a name = "config"></a>
