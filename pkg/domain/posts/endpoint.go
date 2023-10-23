@@ -11,6 +11,16 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 )
 
+func getPostId(c *fiber.Ctx) (int, error) {
+	param := c.Params("postId")
+	value, err := strconv.Atoi(param)
+	if err != nil {
+		log.Errorf("bad post id param: %s. err: %v", param, err)
+		return 0, err
+	}
+	return value, nil
+}
+
 // CreatePost godoc
 // @Summary Create post
 // @Description creates a new post
@@ -259,12 +269,44 @@ func MakeUploadMediaFileToPostHandler(s PostsService) fiber.Handler {
 	}
 }
 
-func getPostId(c *fiber.Ctx) (int, error) {
-	param := c.Params("postId")
-	value, err := strconv.Atoi(param)
-	if err != nil {
-		log.Errorf("bad post id param: %s. err: %v", param, err)
-		return 0, err
+// LikePost godoc
+// @Summary User likes the post
+// @Description User likes the post
+// @Tags posts
+// @Security Bearer
+// @param Authorization header string true "Authorization"
+// @Param postId path int true "Post ID"
+// @Success 204
+// @Failure 400
+// @Failure 401
+// @Failure 403
+// @Failure 409
+// @Router /api/posts/{postId}/like [post]
+func MakeLikePostHandler(s PostsService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		postId, err := getPostId(c)
+		if err != nil {
+			return c.SendStatus(fiber.StatusBadRequest)
+		}
+
+		if err := s.LikePost(middleware.GetAuthenicatedUserId(c), postId); err != nil {
+			if errors.Is(err, utils.ErrNotFound) {
+				return c.SendStatus(fiber.StatusNotFound)
+			}
+
+			if errors.Is(err, utils.ErrForbidden) {
+				return c.SendStatus(fiber.StatusForbidden)
+			}
+
+			if errors.Is(err, utils.ErrAlreadyExists) {
+				return c.SendStatus(fiber.StatusConflict)
+			}
+
+			log.Error(err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
+		return c.SendStatus(fiber.StatusNoContent)
 	}
-	return value, nil
 }

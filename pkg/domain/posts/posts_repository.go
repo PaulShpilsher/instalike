@@ -103,7 +103,7 @@ func (r *postsRepository) DeletePost(postId int) error {
 	// instead we just set the deleted flag to true
 	sql := `
 		UPDATE	posts
-		SET		deleted = TRUE
+			SET deleted = TRUE
 		WHERE	id = $1 AND	deleted IS FALSE
 	`
 	if result, err := r.DB.Exec(sql, postId); err != nil {
@@ -124,6 +124,44 @@ func (r *postsRepository) UpdatePost(postId int, body string) error {
 		WHERE	id = $1 AND deleted IS FALSE
 	`
 	if result, err := r.DB.Exec(sql, postId, body); err != nil {
+		log.Printf("[DB ERROR]: %v", err)
+		return err
+	} else if rows, _ := result.RowsAffected(); rows == 0 {
+		return utils.ErrNotFound
+	}
+
+	return nil
+}
+
+func (r *postsRepository) DidUserLikePost(postId int, userId int) (bool, error) {
+
+	sql := `
+		SELECT	$2 = ANY(likes) AS liked
+		FROM	posts
+		WHERE 	id = $1 AND deleted IS FALSE
+		LIMIT 	1
+	`
+	var liked bool
+	if err := r.DB.Get(&liked, sql, postId, userId); err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return false, utils.ErrNotFound
+		}
+
+		log.Printf("[DB ERROR]: %v", err)
+		return false, err
+	}
+
+	return liked, nil
+}
+
+func (r *postsRepository) LikePost(postId int, userId int) error {
+
+	sql := `
+		UPDATE	posts 
+			SET likes = array_append(likes, $2)
+		WHERE	id = $1 AND deleted IS FALSE
+	`
+	if result, err := r.DB.Exec(sql, postId, userId); err != nil {
 		log.Printf("[DB ERROR]: %v", err)
 		return err
 	} else if rows, _ := result.RowsAffected(); rows == 0 {

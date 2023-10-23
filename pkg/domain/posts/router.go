@@ -21,4 +21,6 @@ func RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler, s PostsSe
 
 	postsRouter.Post("/:postId/attachment", MakeUploadMediaFileToPostHandler(s))
 
+	postsRouter.Post("/:postId/like", MakeLikePostHandler(s))
+
 }

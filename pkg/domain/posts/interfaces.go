@@ -10,6 +10,7 @@ type PostsService interface {
 	UpdatePost(userId int, postId int, body string) error
 	DeletePost(userId int, postId int) error
 	AttachFileToPost(userId int, postId int, contentType string, size int, reader io.Reader) error
+	LikePost(userId int, postId int) error
 }
 
 // PostsRepository interface - posts data store logic
@@ -20,6 +21,8 @@ type PostsRepository interface {
 	DeletePost(postId int) error
 	GetPosts() ([]Post, error)
 	GetPost(postId int) (Post, error)
+	DidUserLikePost(postId int, userId int) (bool, error)
+	LikePost(postId int, userId int) error
 }
 
 // PostAttachmentsRepository interface - post multimedia attachments data store
