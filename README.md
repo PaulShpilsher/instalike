@@ -68,6 +68,7 @@ Each of the bounded contexts uses layered separation of responsibilities design 
 
 Also domain may contain definitions for domain’s data model, API DTO, and layer interface declarations
 
+### Database
 
 ### Developer world
 Assuming Go, docker, git and make installed, here are simple instructions to get you up and running in no time

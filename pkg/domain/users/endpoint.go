@@ -13,6 +13,17 @@ import (
 	"github.com/PaulShpilsher/instalike/pkg/utils"
 )
 
+// Register doc
+// @Summary User register
+// @Description registers user.
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param data body registerInput true "The input register struct"
+// @Success 201
+// @Failure 400 {object} utils.ErrorOutput
+// @Failure 409
+// @Router /api/users/register [post]
 func MakeUserRegisterHandler(s UsersService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -40,6 +51,17 @@ func MakeUserRegisterHandler(s UsersService) fiber.Handler {
 	}
 }
 
+// Login godoc
+// @Summary User login
+// @Description performs user login, returns jwt token and sets http-only cookie.
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param data body loginInput true "The input login struct"
+// @Success 200 {object} loginOutput
+// @Failure 400 {object} utils.ErrorOutput
+// @Failure 401
+// @Router /api/users/login [post]
 func MakeUserLoginHandler(config *config.ServerConfig, s UsersService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var payload loginInput
@@ -77,6 +99,17 @@ func MakeUserLoginHandler(config *config.ServerConfig, s UsersService) fiber.Han
 	}
 }
 
+// Me godoc
+// @Summary Current user information
+// @Description gets currenly logger in user information
+// @Tags auth
+// @Security Bearer
+// @param Authorization header string true "Authorization"
+// @Produce json
+// @Success 200 {object} userOutput
+// @Failure 401
+// @Failure 404
+// @Router /api/users/me [get]
 func MakeUserMeHandler(s UsersService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
