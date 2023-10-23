@@ -8,21 +8,22 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type service struct {
-	repo UserRepository
-	jwt  token.JwtService
+// UsersService - users business logic
+type usersService struct {
+	usersRepo  UsersRepository
+	jwtService token.JwtService
 }
 
-func NewService(repo UserRepository, jwt token.JwtService) *service {
-	return &service{
-		repo: repo,
-		jwt:  jwt,
+func NewService(usersRepo UsersRepository, jwtService token.JwtService) *usersService {
+	return &usersService{
+		usersRepo:  usersRepo,
+		jwtService: jwtService,
 	}
 }
 
-func (s *service) Register(email string, password string) (int, error) {
+func (s *usersService) Register(email string, password string) (int, error) {
 
-	userExists, err := s.repo.GetUserExistsByEmail(email)
+	userExists, err := s.usersRepo.GetUserExistsByEmail(email)
 	if err != nil {
 		return 0, err
 	}
@@ -35,7 +36,7 @@ func (s *service) Register(email string, password string) (int, error) {
 		return 0, err
 	}
 
-	userId, err := s.repo.CreateUser(email, string(passwordHash))
+	userId, err := s.usersRepo.CreateUser(email, string(passwordHash))
 	if err != nil {
 		return 0, err
 	}
@@ -43,9 +44,9 @@ func (s *service) Register(email string, password string) (int, error) {
 	return userId, nil
 }
 
-func (s *service) Login(email string, password string) (int, string, error) {
+func (s *usersService) Login(email string, password string) (int, string, error) {
 
-	user, err := s.repo.GetUserByEmail(email)
+	user, err := s.usersRepo.GetUserByEmail(email)
 	if err != nil {
 		return 0, "", err
 	}
@@ -54,7 +55,7 @@ func (s *service) Login(email string, password string) (int, string, error) {
 		return 0, "", err
 	}
 
-	token, err := s.jwt.CreateToken(strconv.Itoa((user.Id)))
+	token, err := s.jwtService.CreateToken(strconv.Itoa((user.Id)))
 	if err != nil {
 		return 0, "", err
 	}
@@ -62,9 +63,9 @@ func (s *service) Login(email string, password string) (int, string, error) {
 	return user.Id, token, nil
 }
 
-func (s *service) GetUserById(id int) (User, error) {
+func (s *usersService) GetUserById(id int) (User, error) {
 
-	user, err := s.repo.GetUserById(id)
+	user, err := s.usersRepo.GetUserById(id)
 	if err != nil {
 		return User{}, err
 	}

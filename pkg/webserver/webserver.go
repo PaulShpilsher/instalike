@@ -53,14 +53,14 @@ func NewWebServer(config *config.Config) WebServer {
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	// api
-	apiRoute := fiber.New()
-	app.Mount("/api", apiRoute)
+	api := fiber.New()
+	app.Mount("/api", api)
 
 	// /api/users
 	{
-		usersRepository := users.NewRepository(db)
+		usersRepository := users.NewUsersRepository(db)
 		usersService := users.NewService(usersRepository, jwtService)
-		users.RegisterRoutes(apiRoute, &config.Server, authMiddleware, usersService)
+		users.RegisterRoutes(api, &config.Server, authMiddleware, usersService)
 	}
 
 	// /api/posts
@@ -68,7 +68,7 @@ func NewWebServer(config *config.Config) WebServer {
 		postsRepository := posts.NewPostsRepository(db)
 		postAttachmentRepository := posts.NewPostAttachmentRepository(db)
 		postsService := posts.NewPostsService(postsRepository, postAttachmentRepository)
-		posts.RegisterRoutes(apiRoute, authMiddleware, postsService)
+		posts.RegisterRoutes(api, authMiddleware, postsService)
 	}
 
 	// /media
